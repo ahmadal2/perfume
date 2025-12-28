@@ -96,115 +96,105 @@ const KhameahLanding: React.FC = () => {
                 ))}
             </motion.nav>
 
-            {/* 2026 Mobile Pulse Navigation (Smartphone-First) */}
-            <div className="md:hidden fixed bottom-10 left-1/2 -translate-x-1/2 z-[100]">
+            {/* 2026 Mobile Pulse Navigation (Smartphone-First Refined) */}
+            <div className="md:hidden">
+                {/* Top Right Small Button */}
+                <div className="fixed top-6 right-6 z-[100]">
+                    <motion.button
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                        className="w-12 h-12 rounded-2xl bg-black/40 backdrop-blur-3xl border border-white/10 flex items-center justify-center shadow-2xl group overflow-hidden"
+                    >
+                        <AnimatePresence mode="wait">
+                            {isMenuOpen ? (
+                                <motion.div
+                                    key="close"
+                                    initial={{ opacity: 0, rotate: -90 }}
+                                    animate={{ opacity: 1, rotate: 0 }}
+                                    exit={{ opacity: 0, rotate: 90 }}
+                                >
+                                    <X size={20} className="text-blue-400" />
+                                </motion.div>
+                            ) : (
+                                <motion.div
+                                    key="menu"
+                                    initial={{ opacity: 0, rotate: 90 }}
+                                    animate={{ opacity: 1, rotate: 0 }}
+                                    exit={{ opacity: 0, rotate: -90 }}
+                                >
+                                    <Menu size={20} className="text-white/60 group-hover:text-blue-400 transition-colors" />
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
+                        {/* Interactive Sparkle effect */}
+                        <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </motion.button>
+                </div>
+
                 <AnimatePresence>
                     {isMenuOpen && (
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="fixed inset-0 z-[-1]"
+                            className="fixed inset-0 z-[95] bg-black/80 backdrop-blur-2xl flex items-center justify-center p-6"
                             onClick={() => setIsMenuOpen(false)}
                         >
-                            <div className="absolute inset-0 bg-black/80 backdrop-blur-md" />
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                            <motion.div
+                                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                                animate={{ scale: 1, opacity: 1, y: 0 }}
+                                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                                transition={{ type: "spring", damping: 25 }}
+                                className="w-full max-w-[280px] bg-[#0a0a0a]/90 border border-white/10 rounded-[2.5rem] p-8 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative overflow-hidden"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                {/* Header / Index */}
+                                <div className="flex flex-col items-center mb-10">
+                                    <div className="text-[10px] font-black uppercase tracking-[0.5em] text-blue-500 mb-2">Archive</div>
+                                    <div className="h-px w-12 bg-blue-500/30" />
+                                </div>
 
-                <AnimatePresence>
-                    {isMenuOpen && (
-                        <motion.div
-                            initial={{ y: "100%", opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            exit={{ y: "100%", opacity: 0 }}
-                            transition={{ type: "spring", damping: 30, stiffness: 300 }}
-                            className="absolute bottom-20 left-1/2 -translate-x-1/2 w-[90vw] max-w-sm glass-panel rounded-[2.5rem] border border-white/10 p-8 shadow-2xl overflow-hidden"
-                        >
-                            {/* Header / Context */}
-                            <div className="flex justify-between items-center mb-8">
-                                <span className="text-[8px] font-black uppercase tracking-[0.8em] text-blue-500">Navigation</span>
-                                <div className="h-px flex-1 bg-blue-500/20 mx-4" />
-                                <span className="text-[8px] font-mono text-white/20">©2026</span>
-                            </div>
-
-                            {/* Fitting Nav List */}
-                            <div className="space-y-4">
-                                {menuItems.map((item, idx) => (
-                                    <motion.button
-                                        key={item.id}
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: idx * 0.05 }}
-                                        onClick={() => {
-                                            scrollToSection(item.id);
-                                            setIsMenuOpen(false);
-                                        }}
-                                        className="w-full flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5 hover:bg-blue-600/10 hover:border-blue-500/30 transition-all group"
-                                    >
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-blue-400">
-                                                <item.icon size={14} />
+                                {/* Compact Options */}
+                                <div className="space-y-4">
+                                    {menuItems.map((item, idx) => (
+                                        <motion.button
+                                            key={item.id}
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: idx * 0.05 }}
+                                            onClick={() => {
+                                                scrollToSection(item.id);
+                                                setIsMenuOpen(false);
+                                            }}
+                                            className="w-full group flex items-center justify-between py-4 px-2 rounded-xl border border-transparent hover:bg-white/[0.03] hover:border-white/5 transition-all text-left"
+                                        >
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-2 h-2 rounded-full bg-blue-500/20 group-hover:bg-blue-500 group-hover:scale-125 transition-all" />
+                                                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40 group-hover:text-white transition-colors">
+                                                    {item.label}
+                                                </span>
                                             </div>
-                                            <span className="text-sm font-bold uppercase tracking-widest text-white/60 group-hover:text-white transition-colors">
-                                                {item.label}
-                                            </span>
-                                        </div>
-                                        <span className="text-[10px] font-mono text-white/10 group-hover:text-blue-500 transition-colors">0{idx + 1}</span>
-                                    </motion.button>
-                                ))}
-                            </div>
+                                            <span className="text-[8px] font-mono text-white/10 italic">0{idx + 1}</span>
+                                        </motion.button>
+                                    ))}
+                                </div>
 
-                            {/* Quick Status */}
-                            <div className="mt-8 pt-6 border-t border-white/5 flex justify-between items-center opacity-30">
-                                <span className="text-[7px] font-black uppercase tracking-widest">System: Secure</span>
-                                <span className="text-[7px] font-black uppercase tracking-widest">Khamrah Royale</span>
-                            </div>
+                                {/* Bottom Branding */}
+                                <div className="mt-10 pt-6 border-t border-white/5 text-center">
+                                    <span className="text-[7px] font-black uppercase tracking-[0.8em] text-white/20">Khameah Royale</span>
+                                </div>
 
-                            {/* Light Sweep Decoration */}
-                            <motion.div
-                                animate={{ left: ["-100%", "200%"] }}
-                                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                                className="absolute top-0 bottom-0 w-12 bg-gradient-to-r from-transparent via-white/5 to-transparent -skew-x-12"
-                            />
+                                {/* Futuristic Scan Line */}
+                                <motion.div
+                                    animate={{ top: ["-10%", "110%"] }}
+                                    transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                                    className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/20 to-transparent z-[-1]"
+                                />
+                            </motion.div>
                         </motion.div>
                     )}
                 </AnimatePresence>
-
-                {/* The "Pulse" Trigger Button */}
-                <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => setIsMenuOpen(!isMenuOpen)}
-                    className="relative w-16 h-16 rounded-full bg-gradient-to-br from-blue-600 to-blue-900 flex items-center justify-center shadow-[0_0_30px_rgba(37,99,235,0.4)] border border-white/20 overflow-hidden group"
-                >
-                    <AnimatePresence mode="wait">
-                        {isMenuOpen ? (
-                            <motion.div
-                                key="close"
-                                initial={{ rotate: -90, opacity: 0 }}
-                                animate={{ rotate: 0, opacity: 1 }}
-                                exit={{ rotate: 90, opacity: 0 }}
-                            >
-                                <X size={24} className="text-white" />
-                            </motion.div>
-                        ) : (
-                            <motion.div
-                                key="menu"
-                                initial={{ rotate: 90, opacity: 0 }}
-                                animate={{ rotate: 0, opacity: 1 }}
-                                exit={{ rotate: -90, opacity: 0 }}
-                                className="flex flex-col items-center"
-                            >
-                                <Menu size={24} className="text-white" />
-                                <span className="absolute -bottom-1 opacity-0 group-hover:opacity-100 text-[6px] font-black tracking-tighter uppercase transition-opacity">Menu</span>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-
-                    {/* Pulsing Sapphire Effect */}
-                    <div className="absolute inset-0 bg-blue-400/20 animate-pulse pointer-events-none" />
-                    <div className="absolute inset-0 bg-gradient-to-tr from-white/20 via-transparent to-transparent opacity-50" />
-                </motion.button>
             </div>
 
             <main>
