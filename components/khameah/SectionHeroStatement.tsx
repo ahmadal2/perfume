@@ -23,7 +23,7 @@ const SectionHeroStatement: React.FC = () => {
     };
 
     return (
-        <section className="relative h-screen w-full flex items-center justify-center bg-[#0a0a0a] px-6 overflow-hidden">
+        <section className="relative min-h-screen w-full flex items-center justify-center bg-[#0a0a0a] px-4 md:px-6 overflow-hidden py-24 md:py-0">
             {/* Subtle Background */}
             <div className="absolute inset-0 z-0 opacity-40">
                 <img
@@ -39,70 +39,79 @@ const SectionHeroStatement: React.FC = () => {
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, amount: 0.3 }}
-                className="relative z-10 max-w-5xl text-center space-y-8"
+                className="relative z-10 max-w-5xl text-center space-y-6 md:space-y-8"
             >
                 <motion.span
                     variants={itemVariants}
-                    className="block font-mono text-blue-500 uppercase tracking-[1em] text-xs"
+                    className="block font-mono text-blue-500 uppercase tracking-[0.5em] md:tracking-[1em] text-[10px] md:text-xs"
                 >
                     WELCOME TO KHAMEAH
                 </motion.span>
 
                 <motion.h2
                     variants={itemVariants}
-                    className="text-6xl md:text-8xl font-black text-white tracking-tighter leading-none"
+                    className="text-5xl sm:text-6xl md:text-8xl font-black text-white tracking-tighter leading-[0.9] md:leading-none"
                 >
-                    Signature scents that <br />
+                    Signature scents that <br className="hidden sm:block" />
                     <span className="text-blue-600 italic">tell your story</span>
                 </motion.h2>
 
                 {/* Special Cinematic Narrative Block */}
                 <motion.div
                     variants={itemVariants}
-                    className="relative py-10 flex flex-col items-center"
+                    className="relative py-6 md:py-10 flex flex-col items-center"
                 >
-                    <div className="h-px w-24 bg-gradient-to-r from-transparent via-blue-500/50 to-transparent mb-8" />
+                    <div className="h-px w-16 md:w-24 bg-gradient-to-r from-transparent via-blue-500/50 to-transparent mb-6 md:mb-8" />
 
-                    <div className="relative">
+                    <div className="relative w-full px-4">
                         <motion.div
                             initial={{ width: 0 }}
                             whileInView={{ width: "100%" }}
                             transition={{ duration: 1.5, ease: "easeInOut" }}
                             className="absolute top-0 left-0 h-full bg-blue-600/10 -skew-x-12"
                         />
-                        <p className="relative z-10 font-mono text-sm md:text-base text-blue-400 italic font-medium tracking-widest max-w-3xl px-6 leading-relaxed">
+                        <p className="relative z-10 font-mono text-xs md:text-base text-blue-400 italic font-medium tracking-widest max-w-3xl mx-auto leading-loose">
                             "Distilled for the modern sovereign. <br className="hidden md:block" />
                             An olfactory bridge between ancient secrets and futuristic silhouettes."
                         </p>
                     </div>
 
-                    <div className="h-px w-24 bg-gradient-to-r from-transparent via-blue-500/50 to-transparent mt-8" />
+                    <div className="h-px w-16 md:w-24 bg-gradient-to-r from-transparent via-blue-500/50 to-transparent mt-6 md:mt-8" />
 
                     {/* Parallax Signature Background Element */}
-                    <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[15vw] font-black text-white/[0.02] whitespace-nowrap pointer-events-none select-none italic serif">
+                    <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[20vw] md:text-[15vw] font-black text-white/[0.02] whitespace-nowrap pointer-events-none select-none italic serif">
                         KHAMEAH ARCHIVE
                     </div>
                 </motion.div>
 
                 <motion.p
                     variants={itemVariants}
-                    className="text-lg md:text-xl text-white/40 max-w-2xl mx-auto font-light leading-relaxed"
+                    className="text-base md:text-xl text-white/40 max-w-2xl mx-auto font-light leading-relaxed px-4"
                 >
                     Meticulously crafted with rare ingredients from the heart of the Orient,
                     designed to leave an indelible mark on those who encounter them.
                 </motion.p>
 
-                <motion.div variants={itemVariants} className="pt-8">
-                    <button className="px-12 py-5 bg-blue-600 text-white font-bold uppercase tracking-[0.3em] text-xs hover:bg-blue-500 transition-colors rounded-full shadow-[0_0_30px_rgba(37,99,235,0.2)]">
+                <motion.div variants={itemVariants} className="pt-4 md:pt-8">
+                    <button className="w-full sm:w-auto px-8 md:px-12 py-4 md:py-5 bg-blue-600 text-white font-bold uppercase tracking-[0.2em] md:tracking-[0.3em] text-[10px] md:text-xs hover:bg-blue-500 transition-colors rounded-full shadow-[0_0_30px_rgba(37,99,235,0.2)]">
                         Discover Our Collections
                     </button>
                 </motion.div>
             </motion.div>
 
+            {/* Premium Perfume Glass (Smartphone/Desktop Optimized) */}
+            <div className="absolute inset-0 z-0 pointer-events-none flex items-center justify-center opacity-30 md:opacity-50 lg:opacity-70 transform scale-75 md:scale-100">
+                <FloatingPerfume />
+            </div>
+
             {/* Linear Decoration: Left Sidebar Line */}
-            <div className="absolute left-12 md:left-24 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-blue-500/20 to-transparent" />
+            <div className="absolute left-6 md:left-24 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-blue-500/20 to-transparent hidden sm:block" />
+
         </section>
     );
 };
+
+// Import FloatingPerfume internally or locally
+import { FloatingPerfume } from '../ui/floating-perfume';
 
 export default SectionHeroStatement;

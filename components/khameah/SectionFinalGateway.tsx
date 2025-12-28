@@ -58,14 +58,14 @@ const SectionFinalGateway: React.FC = () => {
                     className="group relative cursor-pointer"
                 >
                     {/* Pulsing Outer Ring */}
-                    <div className="absolute inset-[-40px] border border-blue-500/10 rounded-full scale-100 group-hover:scale-110 group-hover:border-blue-500/30 transition-all duration-700 animate-pulse" />
+                    <div className="absolute inset-[-20px] md:inset-[-40px] border border-blue-500/10 rounded-full scale-100 group-hover:scale-110 group-hover:border-blue-500/30 transition-all duration-700 animate-pulse" />
 
-                    <div className="relative overflow-hidden px-16 py-8 border border-white/10 rounded-full bg-white/[0.02] backdrop-blur-3xl transition-all duration-500 group-hover:border-blue-500/50 group-hover:bg-blue-500/5">
+                    <div className="relative z-10 w-full py-6 md:py-8 border border-white/10 rounded-full bg-white/[0.02] backdrop-blur-3xl transition-all duration-500 group-hover:border-blue-500/50 group-hover:bg-blue-500/5">
                         <div className="flex flex-col items-center gap-2">
-                            <span className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase italic serif transition-all group-hover:text-blue-100">
+                            <span className="text-3xl md:text-6xl font-black text-white tracking-tighter uppercase italic serif transition-all group-hover:text-blue-100">
                                 Visit <span className="text-blue-500 group-hover:text-cyan-400 transition-colors">Shop</span>
                             </span>
-                            <span className="text-[8px] uppercase tracking-[1em] text-white/20 group-hover:text-blue-400/60 transition-colors">
+                            <span className="text-[7px] md:text-[8px] uppercase tracking-[0.6em] md:tracking-[1em] text-white/20 group-hover:text-blue-400/60 transition-colors">
                                 Authenticate Destination
                             </span>
                         </div>
@@ -81,7 +81,7 @@ const SectionFinalGateway: React.FC = () => {
             </motion.div>
 
             {/* Bottom Status Bar */}
-            <div className="absolute bottom-10 left-10 md:left-20 right-10 md:right-20 flex justify-between items-center opacity-20 text-[9px] font-mono tracking-widest uppercase">
+            <div className="absolute bottom-6 md:bottom-10 left-6 md:left-20 right-6 md:right-20 flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0 opacity-20 text-[7px] md:text-[9px] font-mono tracking-widest uppercase">
                 <span>System: Online</span>
                 <div className="flex gap-4">
                     <span>Lat: 48.8566</span>

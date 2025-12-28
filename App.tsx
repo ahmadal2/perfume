@@ -42,6 +42,11 @@ const AppContent: React.FC<{
   const isLanding = location.pathname === '/';
   const isAuth = location.pathname === '/auth';
 
+  // Real-time Visitor Tracking
+  useEffect(() => {
+    api.trackVisit(location.pathname);
+  }, [location.pathname]);
+
   // Real-time Supabase Auth Listener
   useEffect(() => {
     const checkInitialSession = async () => {

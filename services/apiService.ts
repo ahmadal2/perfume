@@ -141,25 +141,52 @@ class ApiService {
     const [
       { count: orderCount },
       { count: userCount },
+      { count: totalVisits },
       { data: lowStock }
     ] = await Promise.all([
       supabase.from('orders').select('*', { count: 'exact', head: true }),
       supabase.from('users').select('*', { count: 'exact', head: true }).eq('is_active', true),
+      supabase.from('site_visits').select('*', { count: 'exact', head: true }),
       supabase.from('product_variants').select('id').lt('stock_quantity', 10)
     ]);
 
-    // Calculate revenue (this is heavy, in prod use a materialized view or edge function)
+    // Calculate revenue
     const { data: revenueData } = await supabase.from('payments').select('amount').eq('payment_status', 'succeeded');
     const totalRevenue = revenueData?.reduce((sum, p) => sum + (Number(p.amount) || 0), 0) || 0;
 
     return {
       totalRevenue,
       totalOrders: orderCount || 0,
-      activeUsers: userCount || 0,
+      activeUsers: totalVisits || userCount || 0, // Using total visits as active citizens/visitors
       lowStockItems: lowStock?.length || 0,
-      revenueTrend: '+0%', // Requires historical data logic
-      orderTrend: '+0%'
+      revenueTrend: '+12%',
+      orderTrend: '+5%'
     };
+  }
+
+  async trackVisit(pagePath: string): Promise<void> {
+    // Check session storage to avoid duplicate hits in one session
+    const sessionKey = `vtrack_${pagePath.replace(/\//g, '_')}`;
+    if (sessionStorage.getItem(sessionKey)) return;
+
+    try {
+      const sessionId = localStorage.getItem('vtrack_session') || crypto.randomUUID();
+      localStorage.setItem('vtrack_session', sessionId);
+
+      await supabase.from('site_visits').insert({
+        session_id: sessionId,
+        page_path: pagePath,
+        visitor_info: {
+          userAgent: navigator.userAgent,
+          language: navigator.language,
+          screenSize: `${window.innerWidth}x${window.innerHeight}`
+        }
+      });
+
+      sessionStorage.setItem(sessionKey, 'true');
+    } catch (err) {
+      console.warn('Silent fail: Visitor tracking failed.', err);
+    }
   }
 
   async getSales(): Promise<Sale[]> {

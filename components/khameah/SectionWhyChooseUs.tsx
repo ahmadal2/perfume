@@ -57,31 +57,31 @@ const SectionWhyChooseUs: React.FC = () => {
             <div className="sticky top-0 h-screen w-full flex flex-col md:flex-row items-center justify-between px-6 md:px-20 gap-10">
 
                 {/* Left Side: Tabs & Info */}
-                <div className="w-full md:w-1/2 space-y-12 z-10">
-                    <div className="space-y-4">
-                        <span className="font-mono text-blue-500 text-xs tracking-[1em] uppercase">Why Choose Us</span>
-                        <h2 className="text-5xl md:text-7xl font-black text-white tracking-tighter">The Essence of <br /><span className="text-blue-500 italic">Excellence</span></h2>
+                <div className="w-full md:w-1/2 space-y-8 md:space-y-12 z-10 py-10 md:py-0">
+                    <div className="space-y-3 md:space-y-4">
+                        <span className="font-mono text-blue-500 text-[10px] md:text-xs tracking-[0.8em] md:tracking-[1em] uppercase">Why Choose Us</span>
+                        <h2 className="text-4xl md:text-7xl font-black text-white tracking-tighter leading-tight md:leading-none">The Essence of <br /><span className="text-blue-500 italic">Excellence</span></h2>
                     </div>
 
-                    <div className="flex flex-col gap-6">
+                    <div className="flex flex-col gap-4 md:gap-6">
                         {tabs.map((tab, idx) => (
                             <div
                                 key={tab.id}
-                                className={`cursor-pointer transition-all duration-500 flex items-center gap-6 group`}
+                                className={`cursor-pointer transition-all duration-500 flex items-center gap-4 md:gap-6 group`}
                                 onClick={() => {
                                     // Could add manual scroll to section logic here
                                 }}
                             >
-                                <div className={`w-12 h-px transition-all duration-500 ${currentTab === idx ? "w-20 bg-blue-600" : "bg-white/10 group-hover:bg-white/30"}`} />
+                                <div className={`w-8 md:w-12 h-px transition-all duration-500 ${currentTab === idx ? "w-12 md:w-20 bg-blue-600" : "bg-white/10 group-hover:bg-white/30"}`} />
                                 <div className="space-y-1">
-                                    <h3 className={`text-xl md:text-2xl font-bold tracking-widest ${currentTab === idx ? "text-white" : "text-white/20 group-hover:text-white/40"}`}>
+                                    <h3 className={`text-lg md:text-2xl font-bold tracking-widest ${currentTab === idx ? "text-white" : "text-white/20 group-hover:text-white/40"}`}>
                                         {tab.title}
                                     </h3>
                                     {currentTab === idx && (
                                         <motion.p
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            className="text-white/60 text-sm max-w-md font-light leading-relaxed"
+                                            className="text-white/60 text-xs md:text-sm max-w-sm md:max-w-md font-light leading-relaxed"
                                         >
                                             {tab.description}
                                         </motion.p>
@@ -91,6 +91,7 @@ const SectionWhyChooseUs: React.FC = () => {
                         ))}
                     </div>
                 </div>
+
 
                 {/* Right Side: Changing Images */}
                 <div className="w-full md:w-1/2 h-[50vh] md:h-screen relative flex items-center justify-center">

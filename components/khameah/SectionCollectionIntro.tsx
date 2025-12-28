@@ -40,18 +40,19 @@ const SectionCollectionIntro: React.FC = () => {
                 />
 
                 <div className="space-y-4">
-                    <span className="block font-mono text-blue-500 uppercase tracking-[1.5em] text-[10px] font-black">
+                    <span className="block font-mono text-blue-500 uppercase tracking-[1em] md:tracking-[1.5em] text-[8px] md:text-[10px] font-black">
                         Discovery Phase
                     </span>
-                    <h2 className="text-7xl md:text-[10rem] font-black text-white tracking-tighter leading-none italic serif glow-text-sapphire">
+                    <h2 className="text-5xl sm:text-7xl md:text-[10rem] font-black text-white tracking-tighter leading-none italic serif glow-text-sapphire">
                         THE ARCHIVE
                     </h2>
                 </div>
 
-                <p className="max-w-xl mx-auto text-blue-200/60 font-mono text-xs md:text-sm uppercase tracking-[0.5em] leading-relaxed">
-                    Every bottle holds a universe. <br />
+                <p className="max-w-xl mx-auto text-blue-200/60 font-mono text-[10px] md:text-sm uppercase tracking-[0.3em] md:tracking-[0.5em] leading-relaxed">
+                    Every bottle holds a universe. <br className="hidden md:block" />
                     A curated sanctuary of scents designed to transcend time and space.
                 </p>
+
 
                 <motion.div
                     initial={{ width: 0 }}

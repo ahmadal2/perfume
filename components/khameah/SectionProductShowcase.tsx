@@ -52,18 +52,18 @@ const SectionProductShowcase: React.FC = () => {
                                 {/* Product Info Left */}
                                 <motion.div
                                     style={{ opacity }}
-                                    className="order-2 md:order-1 flex flex-col items-center md:items-start text-center md:text-left space-y-4 md:w-1/3"
+                                    className="order-2 md:order-1 flex flex-col items-center md:items-start text-center md:text-left space-y-3 md:space-y-4 md:w-1/3 mt-4 md:mt-0"
                                 >
-                                    <span className="text-[12vw] md:text-[8vw] font-black text-white/5 leading-none">
+                                    <span className="text-[15vw] md:text-[8vw] font-black text-white/5 leading-none">
                                         {product.id}
                                     </span>
-                                    <h3 className="text-2xl md:text-4xl font-bold text-blue-500 tracking-wider">
+                                    <h3 className="text-xl md:text-4xl font-bold text-blue-500 tracking-wider">
                                         {product.category}
                                     </h3>
-                                    <p className="text-white/60 font-mono tracking-widest uppercase text-xs md:text-sm">
+                                    <p className="text-white/60 font-mono tracking-widest uppercase text-[10px] md:text-sm">
                                         {product.words}
                                     </p>
-                                    <button className="mt-6 px-8 py-3 border border-blue-600/30 text-blue-500 text-[10px] uppercase tracking-[0.4em] hover:bg-blue-600 hover:text-white transition-all">
+                                    <button className="mt-4 md:mt-6 px-6 md:px-8 py-2 md:py-3 border border-blue-600/30 text-blue-500 text-[8px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em] hover:bg-blue-600 hover:text-white transition-all">
                                         Explore Details
                                     </button>
                                 </motion.div>
@@ -71,7 +71,7 @@ const SectionProductShowcase: React.FC = () => {
                                 {/* Product Image Center */}
                                 <motion.div
                                     style={{ opacity, scale }}
-                                    className="order-1 md:order-2 relative w-full max-w-[300px] md:max-w-[450px] aspect-[1/1.2]"
+                                    className="order-1 md:order-2 relative w-full max-w-[240px] md:max-w-[450px] aspect-[1/1.2]"
                                 >
                                     <img
                                         src={product.image}
