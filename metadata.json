@@ -1,0 +1,7 @@
+{
+  "name": "L'Essence Royale - Luxury Perfume Boutique",
+  "description": "A high-end e-commerce platform for a premium perfume retail business, featuring an advanced catalog, WhatsApp integration, and a Gemini-powered fragrance consultant.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}

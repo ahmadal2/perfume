@@ -1,0 +1,236 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom animations for gaming login */
+@keyframes success {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-success {
+  animation: success 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out forwards;
+}
+
+/* --- GLASS INPUT STYLES (From sign-up.tsx) --- */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none !important;
+}
+
+input[type="password"]::-webkit-credentials-auto-fill-button,
+input[type="password"]::-webkit-strong-password-auto-fill-button {
+  display: none !important;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px transparent inset !important;
+  -webkit-text-fill-color: white !important;
+  /* Force white text for dark theme */
+  background-color: transparent !important;
+  background-clip: content-box !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+  color: white !important;
+  caret-color: white !important;
+}
+
+input:autofill {
+  background-color: transparent !important;
+  background-clip: content-box !important;
+  -webkit-text-fill-color: white !important;
+  color: white !important;
+}
+
+input:-internal-autofill-selected {
+  background-color: transparent !important;
+  background-image: none !important;
+  color: white !important;
+  -webkit-text-fill-color: white !important;
+}
+
+input:-webkit-autofill::first-line {
+  color: white !important;
+  -webkit-text-fill-color: white !important;
+}
+
+@property --angle-1 {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: -75deg;
+}
+
+@property --angle-2 {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: -45deg;
+}
+
+/* Glass Button Styles */
+.glass-button-wrap {
+  --anim-time: 400ms;
+  --anim-ease: cubic-bezier(0.25, 1, 0.5, 1);
+  --border-width: clamp(1px, 0.0625em, 4px);
+  position: relative;
+  z-index: 2;
+  transform-style: preserve-3d;
+  transition: transform var(--anim-time) var(--anim-ease);
+}
+
+/* ... (Omitting full button styles if not used, but including Input styles) ... */
+
+/* Glass Input Styles */
+.glass-input-wrap {
+  position: relative;
+  z-index: 2;
+  transform-style: preserve-3d;
+  border-radius: 9999px;
+}
+
+.glass-input {
+  display: flex;
+  position: relative;
+  width: 100%;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  padding: 0.25rem;
+  -webkit-tap-highlight-color: transparent;
+  backdrop-filter: blur(clamp(1px, 0.125em, 4px));
+  transition: all 400ms cubic-bezier(0.25, 1, 0.5, 1);
+  background: linear-gradient(-75deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  box-shadow: inset 0 0.125em 0.125em rgba(255, 255, 255, 0.05), inset 0 -0.125em 0.125em rgba(255, 255, 255, 0.1), 0 0.25em 0.125em -0.125em rgba(0, 0, 0, 0.2), 0 0 0.1em 0.25em inset rgba(0, 0, 0, 0.1);
+}
+
+.glass-input-wrap:focus-within .glass-input {
+  backdrop-filter: blur(0.01em);
+  box-shadow: inset 0 0.125em 0.125em rgba(255, 255, 255, 0.1), inset 0 -0.125em 0.125em rgba(255, 255, 255, 0.1), 0 0.15em 0.05em -0.1em rgba(0, 0, 0, 0.3), 0 0 0.05em 0.1em inset rgba(0, 0, 0, 0.2);
+}
+
+.glass-input::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  border-radius: 9999px;
+  width: calc(100% + clamp(1px, 0.0625em, 4px));
+  height: calc(100% + clamp(1px, 0.0625em, 4px));
+  top: calc(0% - clamp(1px, 0.0625em, 4px) / 2);
+  left: calc(0% - clamp(1px, 0.0625em, 4px) / 2);
+  padding: clamp(1px, 0.0625em, 4px);
+  box-sizing: border-box;
+  background: conic-gradient(from var(--angle-1) at 50% 50%, rgba(255, 255, 255, 0.5) 0%, transparent 5% 40%, rgba(255, 255, 255, 0.5) 50%, transparent 60% 95%, rgba(255, 255, 255, 0.5) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1));
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  transition: all 400ms cubic-bezier(0.25, 1, 0.5, 1), --angle-1 500ms ease;
+  box-shadow: inset 0 0 0 calc(clamp(1px, 0.0625em, 4px) / 2) rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+}
+
+.glass-input-wrap:focus-within .glass-input::after {
+  --angle-1: -125deg;
+}
+
+.glass-input-text-area {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  pointer-events: none;
+}
+
+.glass-input-text-area::after {
+  content: "";
+  display: block;
+  position: absolute;
+  width: calc(100% - clamp(1px, 0.0625em, 4px));
+  height: calc(100% - clamp(1px, 0.0625em, 4px));
+  top: calc(0% + clamp(1px, 0.0625em, 4px) / 2);
+  left: calc(0% + clamp(1px, 0.0625em, 4px) / 2);
+  box-sizing: border-box;
+  border-radius: 9999px;
+  overflow: clip;
+  background: linear-gradient(var(--angle-2), transparent 0%, rgba(255, 255, 255, 0.2) 40% 50%, transparent 55%);
+  z-index: 3;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  background-size: 200% 200%;
+  background-position: 0% 50%;
+  transition: background-position calc(400ms * 1.25) cubic-bezier(0.25, 1, 0.5, 1), --angle-2 calc(400ms * 1.25) cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.glass-input-wrap:focus-within .glass-input-text-area::after {
+  background-position: 25% 50%;
+}
+
+/* Sapphire Tech Aesthetic */
+.sapphire-vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  box-shadow: inset 0 0 150px rgba(59, 130, 246, 0.15);
+}
+
+.tech-grid {
+  background-image:
+    linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.glow-text-sapphire {
+  text-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+}
+
+.corner-frame-border {
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.corner-frame-border:hover {
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.05);
+}
+
+@keyframes sapphire-pulse {
+  0% {
+    opacity: 0.3;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
+
+  100% {
+    opacity: 0.3;
+  }
+}
+
+.animate-sapphire-pulse {
+  animation: sapphire-pulse 4s ease-in-out infinite;
+}

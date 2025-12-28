@@ -1,0 +1,8 @@
+components/ui/sign-up.tsx(81,55): error TS2322: Type 'string' is not assignable to type 'MarginType'.
+pages/ProductDetail.tsx(28,26): error TS2345: Argument of type '{ id: string; size: string; price: number; }' is not assignable to parameter of type 'SetStateAction<Variant>'.
+  Type '{ id: string; size: string; price: number; }' is missing the following properties from type 'Variant': stock, sku
+pages/ProductDetail.tsx(50,22): error TS2551: Property 'images' does not exist on type 'Product'. Did you mean 'image'?
+pages/ProductDetail.tsx(81,28): error TS2551: Property 'images' does not exist on type 'Product'. Did you mean 'image'?
+pages/ProductDetail.tsx(88,22): error TS2551: Property 'images' does not exist on type 'Product'. Did you mean 'image'?
+pages/ProductDetail.tsx(175,53): error TS2345: Argument of type '{ id: string; size: string; price: number; }' is not assignable to parameter of type 'SetStateAction<Variant>'.
+  Type '{ id: string; size: string; price: number; }' is missing the following properties from type 'Variant': stock, sku
