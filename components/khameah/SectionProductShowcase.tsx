@@ -71,7 +71,7 @@ const SectionProductShowcase: React.FC = () => {
                                 {/* Product Image Center */}
                                 <motion.div
                                     style={{ opacity, scale }}
-                                    className="order-1 md:order-2 relative w-full max-w-[240px] md:max-w-[450px] aspect-[1/1.2]"
+                                    className="order-1 md:order-2 relative w-full max-w-[200px] sm:max-w-[240px] md:max-w-[450px] aspect-[1/1.2]"
                                 >
                                     <img
                                         src={product.image}

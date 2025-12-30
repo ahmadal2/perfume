@@ -1,44 +1,132 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ChevronRight, Share2, Info, Star, Heart, ShoppingBag, MessageCircle, Sparkles } from 'lucide-react';
-import { PRODUCTS, WHATSAPP_NUMBER } from '../constants';
-import { Variant, CartItem } from '../types';
-import { getSmartProductDescription } from '../services/geminiService';
+import {
+  ChevronRight, Heart, ShoppingBag, MessageCircle, Star,
+  Minus, Plus, ShieldCheck, Users, Info
+} from 'lucide-react';
+import { Variant, CartItem, Sale, Product } from '../types';
+import { api } from '../services/apiService';
+import { WHATSAPP_NUMBER } from '../constants';
 import { FlowButton } from '../components/ui/flow-button';
-import { TextEffect } from '../components/ui/text-effect';
+import { RatingModal } from '../components/ui/rating-modal';
+import { motion, AnimatePresence } from 'framer-motion';
 
-interface ProductDetailProps {
+const ProductDetail: React.FC<{
   onAddToCart: (item: CartItem) => void;
   wishlist: string[];
   onToggleWishlist: (productId: string) => void;
-}
-
-const ProductDetail: React.FC<ProductDetailProps> = ({ onAddToCart, wishlist, onToggleWishlist }) => {
+}> = ({ onAddToCart, wishlist, onToggleWishlist }) => {
   const { slug } = useParams();
-  const product = PRODUCTS.find(p => p.slug === slug);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [sales, setSales] = useState<Sale[]>([]);
   const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
   const [activeImage, setActiveImage] = useState(0);
-  const [smartDescription, setSmartDescription] = useState<string | null>(null);
-  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [quantity, setQuantity] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Simulated initial viewers base
+  const initialViewers = useMemo(() => Math.floor(Math.random() * (25 - 12 + 1)) + 12, []);
+
+  // Dynamic Live Viewers
+  const [currentViewers, setCurrentViewers] = useState(initialViewers);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentViewers(prev => {
+        const change = Math.floor(Math.random() * 3) - 1; // -1, 0, or +1
+        return Math.max(12, Math.min(45, prev + change));
+      });
+    }, 4500);
+    return () => clearInterval(interval);
+  }, []);
+
+  // User Rating Interaction
+  const [userRating, setUserRating] = useState<number | null>(null);
+  const [hasRated, setHasRated] = useState(false);
+  const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
+
+  const handleRate = async (rating: number) => {
+    try {
+      await api.submitReview(product?.id || '', rating);
+      setUserRating(rating);
+      setHasRated(true);
+    } catch (err) {
+      console.error("Failed to submit rating", err);
+      // Optional: Show error toast/alert if user not logged in
+      alert("Please log in to submit a rating.");
+    }
+  };
+
+  // Check for existing rating
+  useEffect(() => {
+    if (product?.id) {
+      api.getUserReview(product.id).then(r => {
+        if (r) {
+          setUserRating(r);
+          setHasRated(true);
+        }
+      });
+    }
+  }, [product?.id]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [productsData, salesData] = await Promise.all([
+          api.getPublicProducts(),
+          api.getSales()
+        ]);
+        const foundProduct = productsData.find(p => p.slug === slug);
+        setProduct(foundProduct || null);
+        setSales(salesData);
+        if (foundProduct?.variants?.length) {
+          setSelectedVariant(foundProduct.variants[0]);
+        }
+      } catch (err) {
+        console.error("Error fetching product details:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, [slug]);
+
+  const activeSale = useMemo(() => {
+    if (!product) return null;
+    return sales.find(s =>
+      s.isActive &&
+      (s.appliesTo === 'all' ||
+        (s.appliesTo === 'specific_products' && s.targetIds?.includes(product.id)) ||
+        (s.appliesTo === 'specific_categories' && s.targetIds?.includes(product.category)))
+    );
+  }, [product, sales]);
+
+  const originalPrice = selectedVariant?.price || 0;
+  let discountedPrice = originalPrice;
+  let savingsPercent = 0;
+
+  if (activeSale) {
+    if (activeSale.discountType === 'percentage') {
+      discountedPrice = originalPrice * (1 - activeSale.discountValue / 100);
+      savingsPercent = activeSale.discountValue;
+    } else {
+      discountedPrice = Math.max(0, originalPrice - activeSale.discountValue);
+      savingsPercent = Math.round((activeSale.discountValue / (originalPrice || 1)) * 100);
+    }
+  }
+
+  // Price per Liter calculation
+  const pricePerLiter = useMemo(() => {
+    if (!selectedVariant) return 0;
+    const sizeMatch = selectedVariant.size.match(/\d+/);
+    if (!sizeMatch) return 0;
+    const ml = parseInt(sizeMatch[0]);
+    return (discountedPrice / ml) * 1000;
+  }, [selectedVariant, discountedPrice]);
 
   const isInWishlist = product ? wishlist.includes(product.id) : false;
 
-  useEffect(() => {
-    if (product) {
-      setSelectedVariant(product.variants[0]);
-      setActiveImage(0);
-
-      const fetchAiDesc = async () => {
-        setIsAiLoading(true);
-        const desc = await getSmartProductDescription(product.name, [...product.notes.top, ...product.notes.middle]);
-        setSmartDescription(desc);
-        setIsAiLoading(false);
-      };
-      fetchAiDesc();
-    }
-  }, [product]);
-
-  if (!product) return <div className="p-20 text-center text-white uppercase tracking-widest">Product not found.</div>;
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center text-white/20 uppercase tracking-[1em] text-[10px] animate-pulse">Distilling...</div>;
+  if (!product) return <div className="p-40 text-center text-white/40 uppercase tracking-widest">Essence not found.</div>;
 
   const handleAddToCart = () => {
     if (!selectedVariant) return;
@@ -49,169 +137,260 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ onAddToCart, wishlist, on
       brand: product.brand,
       image: product.images[0],
       size: selectedVariant.size,
-      price: selectedVariant.price,
-      quantity: 1,
+      price: discountedPrice,
+      quantity: quantity,
+      originalPrice: discountedPrice < originalPrice ? originalPrice : undefined
     });
   };
 
-  const handleWhatsAppOrder = () => {
-    if (!selectedVariant) return;
-    const message = encodeURIComponent(
-      `Hello! I'm interested in ordering:\nProduct: ${product.name}\nSize: ${selectedVariant.size}\nPrice: $${selectedVariant.price}\nBrand: ${product.brand}`
-    );
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, '_blank');
+  const handleBuyNow = () => {
+    if (!selectedVariant || !product) return;
+
+    // Construct message
+    const message = `Hi, I would like to order:
+${product.name}
+Size: ${selectedVariant.size}
+Price: €${discountedPrice.toFixed(2)}
+SKU: ${selectedVariant.sku || 'N/A'}
+
+Please confirm availability.`;
+
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER.replace('+', '')}?text=${encodedMessage}`;
+
+    window.open(whatsappUrl, '_blank');
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12 lg:py-24">
-      {/* Breadcrumbs */}
-      <nav className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-gray-500 mb-12">
-        <Link to="/" className="hover:text-white transition-colors font-black">Home</Link>
-        <ChevronRight size={10} />
-        <Link to="/catalog" className="hover:text-white transition-colors font-black">Catalog</Link>
-        <ChevronRight size={10} />
-        <span className="text-white font-black">{product.name}</span>
-      </nav>
+    <div className="min-h-screen bg-[#020617] pt-32 pb-24 text-white">
+      <div className="max-w-7xl mx-auto px-6 h-full">
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-        {/* Gallery */}
-        <div className="space-y-6">
-          <div className="aspect-[4/5] bg-zinc-900 border border-white/5 overflow-hidden rounded-[2.5rem] shadow-2xl relative">
-            <img
-              src={product.images[activeImage]}
-              alt={product.name}
-              className="w-full h-full object-cover transition-transform duration-[2s] hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
-          </div>
-          <div className="grid grid-cols-4 gap-4">
-            {product.images.map((img, idx) => (
-              <button
-                key={idx}
-                onClick={() => setActiveImage(idx)}
-                className={`aspect-square border rounded-2xl transition-all overflow-hidden relative ${activeImage === idx ? 'border-[#D4AF37] scale-95 shadow-[0_0_15px_rgba(212,175,55,0.2)]' : 'border-white/5 opacity-40 grayscale hover:grayscale-0 hover:opacity-100'}`}
-              >
-                <img src={img} alt={`${product.name} ${idx}`} className="w-full h-full object-cover" />
-              </button>
-            ))}
-          </div>
-        </div>
+        {/* Breadcrumbs */}
+        <nav className="flex items-center gap-2 text-[10px] uppercase tracking-[0.4em] text-white/30 mb-20">
+          <Link to="/" className="hover:text-white transition-colors">Home</Link>
+          <ChevronRight size={10} />
+          <Link to="/catalog" className="hover:text-white transition-colors">Archive</Link>
+          <ChevronRight size={10} />
+          <span className="text-white">{product.name}</span>
+        </nav>
 
-        {/* Content */}
-        <div className="space-y-10">
-          <div>
-            <div className="flex items-center gap-4 mb-3">
-              <span className="text-[#D4AF37] text-[10px] uppercase tracking-[0.6em] font-black">{product.brand}</span>
-              <div className="h-[1px] w-12 bg-[#D4AF37]/20" />
-            </div>
-            <TextEffect
-              per="char"
-              preset="blur"
-              as="h1"
-              className="text-5xl md:text-7xl serif italic mb-6 text-white leading-tight font-black"
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 xl:gap-32 items-start">
+
+          {/* LEFT: GALLERY */}
+          <div className="space-y-8 sticky top-32">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="aspect-square bg-white/[0.02] border border-white/5 rounded-[4rem] overflow-hidden relative group"
             >
-              {product.name}
-            </TextEffect>
-            <div className="flex items-center gap-6">
-              <span className="text-3xl gold-text font-black tracking-widest">
-                ${selectedVariant?.price}
-              </span>
-              <div className="h-6 w-[1px] bg-white/10" />
-              <div className="flex items-center gap-1.5 text-[#D4AF37]">
-                <Star size={12} fill="currentColor" />
-                <span className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em]">Boutique Selection</span>
-              </div>
-            </div>
-          </div>
+              <img
+                src={product.images[activeImage]}
+                alt={product.name}
+                className="w-full h-full object-cover transition-transform duration-[3s] group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#020617]/40 to-transparent pointer-events-none" />
 
-          <div className="space-y-6">
-            <div className="space-y-4">
-              <p className="text-gray-400 leading-loose text-xs uppercase tracking-[0.1em]">{product.description}</p>
-            </div>
+              <button
+                onClick={() => onToggleWishlist(product.id)}
+                className="absolute top-8 right-8 w-14 h-14 rounded-2xl bg-black/40 backdrop-blur-3xl border border-white/10 flex items-center justify-center hover:bg-white/10 transition-all z-20 group"
+              >
+                <Heart size={20} className={isInWishlist ? 'text-red-500 fill-red-500' : 'text-white/40 group-hover:text-white'} />
+              </button>
+            </motion.div>
 
-            {/* Minimal Glass Description Box - No header as requested */}
-            {isAiLoading ? (
-              <div className="p-8 bg-white/[0.02] border border-white/5 animate-pulse rounded-[2rem] backdrop-blur-xl">
-                <div className="h-2 bg-white/10 w-3/4 mb-3 rounded-full"></div>
-                <div className="h-2 bg-white/10 w-1/2 rounded-full"></div>
-              </div>
-            ) : smartDescription && (
-              <div className="relative group overflow-hidden">
-                <div className="absolute inset-0 bg-white/[0.02] backdrop-blur-3xl rounded-[2.5rem] border border-white/5 group-hover:border-[#D4AF37]/20 transition-all duration-1000" />
-                <div className="relative p-8">
-                  <p className="text-[#F1D382] leading-loose text-sm italic font-light serif text-glow">
-                    {smartDescription}
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Olfactory Notes Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 py-10 border-y border-white/5">
-            <div className="space-y-2">
-              <h5 className="text-[9px] uppercase tracking-[0.4em] text-[#D4AF37] font-black">Prelude</h5>
-              <p className="text-xs text-gray-400 tracking-wider leading-relaxed">{product.notes.top.join(' • ')}</p>
-            </div>
-            <div className="space-y-2">
-              <h5 className="text-[9px] uppercase tracking-[0.4em] text-[#D4AF37] font-black">Resonance</h5>
-              <p className="text-xs text-gray-400 tracking-wider leading-relaxed">{product.notes.middle.join(' • ')}</p>
-            </div>
-            <div className="space-y-2">
-              <h5 className="text-[9px] uppercase tracking-[0.4em] text-[#D4AF37] font-black">Foundation</h5>
-              <p className="text-xs text-gray-400 tracking-wider leading-relaxed">{product.notes.base.join(' • ')}</p>
-            </div>
-          </div>
-
-          {/* Variant Select */}
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h4 className="text-[9px] uppercase tracking-[0.4em] font-black text-gray-500">Archive Options</h4>
-            </div>
-            <div className="flex flex-wrap gap-4">
-              {product.variants.map((v) => (
+            {/* Thumbnails */}
+            <div className="flex gap-4">
+              {product.images.map((img, idx) => (
                 <button
-                  key={v.id}
-                  onClick={() => setSelectedVariant(v)}
-                  className={`px-10 py-4 text-[10px] font-black uppercase tracking-[0.2em] rounded-full transition-all duration-700 border ${selectedVariant?.id === v.id
-                      ? 'bg-[#D4AF37] text-black border-[#D4AF37] shadow-[0_10px_40px_rgba(212,175,55,0.3)]'
-                      : 'bg-white/[0.02] border-white/10 text-gray-500 hover:border-white/30 hover:text-white'
-                    }`}
+                  key={idx}
+                  onClick={() => setActiveImage(idx)}
+                  className={`w-24 h-24 rounded-3xl overflow-hidden border-2 transition-all relative ${activeImage === idx ? 'border-blue-500 bg-blue-500/10' : 'border-white/5 opacity-40 hover:opacity-100'}`}
                 >
-                  {v.size}
+                  <img src={img} className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
           </div>
 
-          {/* CTA Buttons */}
-          <div className="space-y-6 pt-4">
-            <div className="flex flex-col sm:flex-row gap-6">
-              <FlowButton
-                onClick={handleAddToCart}
-                text="Secure Archive Volume"
-                variant="gold"
-                className="flex-[2] h-16"
-              />
-              <FlowButton
-                onClick={() => onToggleWishlist(product.id)}
-                variant="glass"
-                className="flex-1 h-16"
-                text={isInWishlist ? 'Archived' : 'Archive'}
-              >
-                <Heart size={14} fill={isInWishlist ? "currentColor" : "none"} className="mr-2" />
-                {isInWishlist ? 'Archived' : 'Archive'}
-              </FlowButton>
-            </div>
-            <FlowButton
-              onClick={handleWhatsAppOrder}
-              variant="glass"
-              className="w-full py-8 border-blue-500/20 hover:border-blue-500/50 hover:text-blue-400 group relative overflow-hidden bg-blue-900/5"
+          {/* RIGHT: CONTENT */}
+          <div className="space-y-12">
+
+            {/* Trust Banner */}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="inline-flex items-center px-6 py-2.5 rounded-full bg-white border border-white/20 shadow-xl"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/0 via-blue-600/5 to-blue-600/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-              <MessageCircle size={16} className="mr-3 text-blue-500 group-hover:scale-110 transition-transform" />
-              <span className="text-[10px] uppercase tracking-[0.6em] font-black">Direct Boutique Consultation</span>
-            </FlowButton>
+              <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-[#1a1a1a]">Über {product.salesCount || 0}+ zufriedene Kunden</span>
+            </motion.div>
+
+            {/* Title & Brand */}
+            <div className="space-y-4">
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center gap-1 group">
+                  <div className="flex items-center gap-0.5">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        size={16}
+                        fill={(userRating || Math.floor(product.rating || 5)) > i ? "#f59e0b" : "none"}
+                        className={(userRating || Math.floor(product.rating || 5)) > i ? "text-[#f59e0b]" : "text-white/20"}
+                      />
+                    ))}
+                  </div>
+
+                  {!hasRated && (
+                    <button
+                      onClick={() => setIsRatingModalOpen(true)}
+                      className="ml-4 text-[10px] uppercase tracking-widest font-bold text-blue-400 hover:text-blue-300 transition-colors border-b border-blue-400/30 hover:border-blue-300"
+                    >
+                      Bewerten
+                    </button>
+                  )}
+
+                  <span className="text-[11px] font-bold text-white/40 ml-2 uppercase tracking-widest">
+                    ({product.reviewCount || 0})
+                  </span>
+
+                  <RatingModal
+                    isOpen={isRatingModalOpen}
+                    onClose={() => setIsRatingModalOpen(false)}
+                    onRate={handleRate}
+                    productName={product.name}
+                    initialRating={userRating}
+                  />
+                </div>
+                <AnimatePresence>
+                  {hasRated && (
+                    <motion.p
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="text-[10px] font-bold text-blue-400 uppercase tracking-widest"
+                    >
+                      Vielen Dank für deine Bewertung!
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </div>
+              <h1 className="text-5xl md:text-8xl serif italic tracking-tighter leading-[1.1] text-white/95">{product.name}</h1>
+              <p className="text-white/40 text-[13px] md:text-[15px] uppercase tracking-[0.2em] font-medium leading-relaxed max-w-md text-center md:text-left">geht in die Richtung wie {product.brand}</p>
+            </div>
+
+            {/* Pricing Section */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-6">
+                {savingsPercent > 0 && (
+                  <span className="text-2xl text-white/30 line-through font-mono">€{originalPrice.toFixed(2)} EUR</span>
+                )}
+                <span className="text-4xl font-black tracking-tighter text-white">€{discountedPrice.toFixed(2)} EUR</span>
+                {savingsPercent > 0 && (
+                  <span className="px-5 py-1.5 rounded-full bg-black text-[10px] font-black uppercase tracking-widest border border-white/20">Sale</span>
+                )}
+              </div>
+              <div className="space-y-1 mt-3">
+                <p className="text-[12px] text-white/30 uppercase tracking-[0.1em] font-bold">€{pricePerLiter.toFixed(2)}/l</p>
+                <p className="text-[11px] text-white/35 font-medium leading-relaxed">
+                  Inkl. Steuern. <span className="underline cursor-pointer hover:text-white transition-opacity decoration-white/20">Versand</span> wird beim Checkout berechnet
+                </p>
+              </div>
+            </div>
+
+            {/* Size/Variant Selection */}
+            <div className="space-y-6 pt-4">
+              <h4 className="text-[10px] uppercase tracking-[0.5em] text-white/30 font-black">Größe</h4>
+              <div className="flex flex-wrap gap-4">
+                {product.variants.map((v) => (
+                  <button
+                    key={v.id}
+                    onClick={() => setSelectedVariant(v)}
+                    className={`px-10 py-5 rounded-2xl text-[12px] font-black uppercase tracking-[0.2em] transition-all duration-300 border-2 ${selectedVariant?.id === v.id
+                      ? 'bg-white text-black border-white shadow-2xl shadow-white/10'
+                      : 'bg-[#3d3d31] border-transparent text-white/50 hover:text-white hover:bg-[#4d4d41]'}`}
+                  >
+                    {v.size}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Quantity & Actions */}
+            <div className="space-y-10">
+              <div className="space-y-6">
+                <h4 className="text-[10px] uppercase tracking-[0.5em] text-white/30 font-black">Anzahl</h4>
+                <div className="inline-flex items-center gap-10 bg-white/5 border border-white/10 rounded-2xl px-10 py-5 group hover:border-white/20 transition-all">
+                  <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="text-white/30 hover:text-white transition-colors"><Minus size={18} /></button>
+                  <span className="text-[20px] font-black w-8 text-center tabular-nums text-white/90 font-mono tracking-tighter">{quantity}</span>
+                  <button onClick={() => setQuantity(q => q + 1)} className="text-white/30 hover:text-white transition-colors"><Plus size={18} /></button>
+                </div>
+              </div>
+
+              {/* Status Indicators */}
+              <div className="space-y-4 pt-2">
+                <div className="flex items-center gap-4">
+                  <div className="w-4 h-4 rounded-full bg-green-500/10 flex items-center justify-center relative">
+                    <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_12px_rgba(34,197,94,0.6)] animate-soft-pulse" />
+                  </div>
+                  <span className="text-[12px] uppercase tracking-[0.15em] font-black text-white/50">
+                    Auf Lager - {product.deliveryTime || 'In 1-3 Tagen bei dir'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="w-4 h-4 rounded-full bg-blue-500/10 flex items-center justify-center relative">
+                    <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.6)] animate-soft-pulse" />
+                  </div>
+                  <span className="text-[12px] uppercase tracking-[0.15em] font-black text-white/50">
+                    {currentViewers} Personen schauen sich diesen Artikel gerade an
+                  </span>
+                </div>
+              </div>
+
+              {/* Main Actions */}
+              <div className="flex flex-col gap-4 pt-4">
+                <FlowButton
+                  onClick={handleAddToCart}
+                  variant="custom"
+                  className="h-16 md:h-20 text-[11px] md:text-[13px] uppercase tracking-[0.3em] md:tracking-[0.4em] font-black blue-glass text-white/90 shadow-2xl transition-all duration-500 hover:scale-[1.01] active:scale-[0.99]"
+                  text="In den Warenkorb"
+                />
+                <FlowButton
+                  onClick={handleBuyNow}
+                  variant="custom"
+                  className={`h-16 md:h-20 text-[11px] md:text-[13px] uppercase tracking-[0.3em] md:tracking-[0.4em] font-black border-none text-white transition-all duration-500 hover:scale-[1.01] active:scale-[0.99] ${savingsPercent > 30 ? 'animate-sale-urgency shadow-[0_10px_40px_rgba(239,68,68,0.3)]' : 'bg-blue-600 hover:bg-blue-500 shadow-[0_10px_40px_rgba(59,130,246,0.3)]'}`}
+                  text="Buy Now"
+                />
+              </div>
+
+              {/* Secondary Actions */}
+              <div className="grid grid-cols-2 gap-4 mt-8">
+                <button className="flex items-center justify-center gap-3 py-6 rounded-3xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all">
+                  <ShieldCheck size={18} className="text-blue-500" />
+                  <span className="text-[9px] uppercase tracking-[0.4em] font-black">Secure Checkout</span>
+                </button>
+                <button className="flex items-center justify-center gap-3 py-6 rounded-3xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all">
+                  <Info size={18} className="text-blue-500" />
+                  <span className="text-[9px] uppercase tracking-[0.4em] font-black">Returns Info</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Notes Pyramid (Keeping the essence) */}
+            <div className="pt-20 border-t border-white/5">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+                <div className="space-y-3">
+                  <span className="text-[8px] font-black uppercase tracking-[0.5em] text-blue-500">Top Notes</span>
+                  <p className="text-sm font-medium text-white/60 leading-relaxed">{product.notes.top.join(' • ')}</p>
+                </div>
+                <div className="space-y-3">
+                  <span className="text-[8px] font-black uppercase tracking-[0.5em] text-blue-500">Heart Notes</span>
+                  <p className="text-sm font-medium text-white/60 leading-relaxed">{product.notes.middle.join(' • ')}</p>
+                </div>
+                <div className="space-y-3">
+                  <span className="text-[8px] font-black uppercase tracking-[0.5em] text-blue-500">Base Notes</span>
+                  <p className="text-sm font-medium text-white/60 leading-relaxed">{product.notes.base.join(' • ')}</p>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>

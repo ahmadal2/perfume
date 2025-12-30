@@ -9,6 +9,7 @@ import { DashboardStats, Product, Sale } from '../types';
 import { FlowButton } from '../components/ui/flow-button';
 import { ProductForm } from '../components/admin/ProductForm';
 import { SaleForm } from '../components/admin/SaleForm';
+import { RealtimeAnalyticsPanel } from '../components/admin/RealtimeAnalyticsPanel';
 
 const AdminDashboard: React.FC = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -21,6 +22,7 @@ const AdminDashboard: React.FC = () => {
   const [showProductForm, setShowProductForm] = useState(false);
   const [showSaleForm, setShowSaleForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined);
+  const [editingSale, setEditingSale] = useState<Sale | undefined>(undefined);
 
   const fetchData = useCallback(async () => {
     try {
@@ -99,6 +101,9 @@ const AdminDashboard: React.FC = () => {
         <AnimatePresence mode="wait">
           {activeView === 'overview' && stats && (
             <motion.div key="overview" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-16">
+
+              <RealtimeAnalyticsPanel stats={stats} />
+
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 <StatCard label="Annual Revenue" value={`$${stats.totalRevenue.toLocaleString()}`} icon={TrendingUp} trend={stats.revenueTrend} />
                 <StatCard label="Logistics Volume" value={stats.totalOrders} icon={ShoppingBag} trend={stats.orderTrend} />
@@ -113,20 +118,22 @@ const AdminDashboard: React.FC = () => {
                     <button className="text-[9px] uppercase tracking-[0.4em] text-blue-400 font-black hover:text-blue-300 transition-colors">Full Ledger</button>
                   </div>
                   <div className="space-y-8">
-                    {[1, 2, 3].map(i => (
-                      <div key={i} className="flex items-center justify-between py-6 border-b border-white/5 last:border-none group">
+                    {products.slice(0, 5).map(p => (
+                      <div key={p.id} className="flex items-center justify-between py-6 border-b border-white/5 last:border-none group">
                         <div className="flex items-center gap-6">
-                          <div className="w-16 h-16 rounded-[1.5rem] bg-white/5 border border-white/5 flex items-center justify-center text-blue-500 group-hover:bg-blue-500/10 transition-colors">
-                            <ShoppingBag size={20} />
-                          </div>
+                          <img
+                            src={p.images[0] || 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=100'}
+                            alt={p.name}
+                            className="w-16 h-16 rounded-[1.5rem] object-cover border border-white/5 group-hover:border-blue-500/30 transition-colors"
+                          />
                           <div>
-                            <p className="text-xs font-black uppercase tracking-[0.2em]">Transaction #ORD-X{i}92</p>
-                            <p className="text-[9px] text-white/30 uppercase tracking-[0.4em] mt-1">Sovereign Citizen • 3 Essences</p>
+                            <p className="text-xs font-black uppercase tracking-[0.2em]">{p.name}</p>
+                            <p className="text-[9px] text-white/30 uppercase tracking-[0.4em] mt-1">{p.brand || 'Parfume'} • {p.fragranceType}</p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-lg font-black tracking-widest">$842.00</p>
-                          <span className="text-[8px] px-3 py-1 rounded-full bg-green-500/10 text-green-400 font-black uppercase tracking-widest border border-green-500/20">Settled</span>
+                          <p className="text-lg font-black tracking-widest">${p.variants[0]?.price?.toFixed(2) || '0.00'}</p>
+                          <span className="text-[8px] px-3 py-1 rounded-full bg-green-500/10 text-green-400 font-black uppercase tracking-widest border border-green-500/20">Active</span>
                         </div>
                       </div>
                     ))}
@@ -207,7 +214,31 @@ const AdminDashboard: React.FC = () => {
                             </div>
                           </div>
                         </td>
-                        <td className="py-8 font-black tracking-tighter text-lg">${p.variants[0]?.price || '0.00'}</td>
+                        <td className="py-8 font-black tracking-tighter text-lg">
+                          {(() => {
+                            const original = p.variants[0]?.price || 0;
+                            const activeSale = sales.find(s =>
+                              s.isActive &&
+                              (s.appliesTo === 'all' ||
+                                (s.appliesTo === 'specific_products' && s.targetIds?.includes(p.id)) ||
+                                (s.appliesTo === 'specific_categories' && s.targetIds?.includes(p.category)))
+                            );
+
+                            if (activeSale) {
+                              const discounted = activeSale.discountType === 'percentage'
+                                ? original * (1 - activeSale.discountValue / 100)
+                                : Math.max(0, original - activeSale.discountValue);
+
+                              return (
+                                <div className="flex flex-col">
+                                  <span className="text-white/20 line-through text-xs">${original.toFixed(2)}</span>
+                                  <span className="text-blue-500">${discounted.toFixed(2)}</span>
+                                </div>
+                              );
+                            }
+                            return `$${original.toFixed(2)}`;
+                          })()}
+                        </td>
                         <td className="py-8 text-right">
                           <div className="flex justify-end gap-3">
                             <button
@@ -248,7 +279,10 @@ const AdminDashboard: React.FC = () => {
                   variant="gold"
                   className="h-16 px-10"
                   text="Establish New Sale"
-                  onClick={() => setShowSaleForm(true)}
+                  onClick={() => {
+                    setEditingSale(undefined);
+                    setShowSaleForm(true);
+                  }}
                 />
               </div>
 
@@ -264,16 +298,30 @@ const AdminDashboard: React.FC = () => {
                       </div>
                     </div>
                     <h4 className="text-2xl serif italic mb-3">{sale.name}</h4>
-                    <div className="flex items-center gap-4 mb-8">
+                    <div className="flex items-center gap-4 mb-2">
                       <span className="text-3xl font-black text-white">{sale.discountValue}{sale.discountType === 'percentage' ? '%' : '$'}</span>
                       <span className="text-[10px] uppercase tracking-[0.3em] text-white/30 font-black">Distillation Factor</span>
                     </div>
+
+                    <p className="text-[9px] uppercase tracking-widest text-blue-500 font-black mb-8">
+                      {sale.appliesTo === 'all' ? 'Universal Coverage' : `${sale.targetIds?.length || 0} Entities Marked`}
+                    </p>
+
                     <div className="space-y-4 pt-6 border-t border-white/5">
                       <div className="flex items-center gap-3 text-[10px] uppercase tracking-widest text-white/40">
                         <Calendar size={12} />
                         <span>{new Date(sale.startDate || '').toLocaleDateString()} → {sale.isPermanent ? 'Eternal' : new Date(sale.endDate || '').toLocaleDateString()}</span>
                       </div>
                       <div className="flex gap-2 pt-4">
+                        <button
+                          onClick={() => {
+                            setEditingSale(sale);
+                            setShowSaleForm(true);
+                          }}
+                          className="flex-1 py-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-[9px] uppercase tracking-widest font-black"
+                        >
+                          Modify
+                        </button>
                         <button onClick={() => handleDeleteSale(sale.id)} className="flex-1 py-3 rounded-xl bg-white/5 hover:bg-red-500/10 hover:text-red-500 transition-colors text-[9px] uppercase tracking-widest font-black">Terminate</button>
                       </div>
                     </div>
@@ -282,10 +330,10 @@ const AdminDashboard: React.FC = () => {
               </div>
             </motion.div>
           )}
-        </AnimatePresence>
-      </div>
+        </AnimatePresence >
+      </div >
 
-      {/* Modals */}
+      {/* Modal s */}
       <AnimatePresence>
         {showProductForm && (
           <ProductForm
@@ -296,6 +344,7 @@ const AdminDashboard: React.FC = () => {
         )}
         {showSaleForm && (
           <SaleForm
+            initialData={editingSale}
             onClose={() => setShowSaleForm(false)}
             onSuccess={handleSaleSuccess}
           />

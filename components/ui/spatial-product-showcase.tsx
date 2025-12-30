@@ -14,7 +14,7 @@ import {
   CreditCard,
   LucideIcon,
 } from 'lucide-react';
-import { Product, CartItem } from '../../types';
+import { Product, CartItem, Sale } from '../../types';
 import { FlowButton } from './flow-button';
 
 // =========================================
@@ -25,6 +25,7 @@ interface PerfumeShowcaseProps {
   product: Product;
   onAddToCart: (item: CartItem) => void;
   onBuyNow: (item: CartItem) => void;
+  activeSale?: Sale;
 }
 
 const ANIMATIONS = {
@@ -95,9 +96,9 @@ const ProductVisual = ({ product }: { product: Product }) => {
       />
 
       {/* Image Container */}
-      <div className="relative h-72 w-72 md:h-[480px] md:w-[480px] rounded-[3rem] border border-white/5 shadow-2xl flex items-center justify-center overflow-hidden bg-white/[0.01] backdrop-blur-xl">
+      <div className="relative h-[60vw] w-[60vw] md:h-[480px] md:w-[480px] max-w-[320px] md:max-w-none rounded-[2.5rem] md:rounded-[3rem] border border-white/5 shadow-2xl flex items-center justify-center overflow-hidden bg-white/[0.01] backdrop-blur-xl">
         <MotionDiv
-          animate={{ y: [-15, 15, -15] }}
+          animate={{ y: [-10, 10, -10] }}
           transition={{ repeat: Infinity, duration: 8, ease: 'easeInOut' }}
           className="relative z-10 w-full h-full flex items-center justify-center font-bold text-white/10"
         >
@@ -135,11 +136,36 @@ const ProductVisual = ({ product }: { product: Product }) => {
   );
 };
 
-export default function PerfumeShowcase({ product, onAddToCart, onBuyNow }: PerfumeShowcaseProps) {
+export default function PerfumeShowcase({ product, onAddToCart, onBuyNow, activeSale }: PerfumeShowcaseProps) {
   const MotionDiv = motion.div as any;
   const MotionH1 = motion.h1 as any;
   const MotionH2 = motion.h2 as any;
   const MotionP = motion.p as any;
+
+  const [userRating, setUserRating] = React.useState<number | null>(null);
+  const [hasRated, setHasRated] = React.useState(false);
+
+  const primaryVariant = product.variants?.[0];
+  const originalPrice = primaryVariant?.price || 0;
+
+  let discountedPrice = originalPrice;
+  let savingsPercent = 0;
+
+  if (activeSale && activeSale.isActive) {
+    if (activeSale.discountType === 'percentage') {
+      discountedPrice = originalPrice * (1 - activeSale.discountValue / 100);
+      savingsPercent = activeSale.discountValue;
+    } else {
+      discountedPrice = Math.max(0, originalPrice - activeSale.discountValue);
+      savingsPercent = Math.round((activeSale.discountValue / (originalPrice || 1)) * 100);
+    }
+  }
+
+  const handleRate = (rating: number) => {
+    if (hasRated) return;
+    setUserRating(rating);
+    setHasRated(true);
+  };
 
   const handleCartClick = () => {
     if (!product.variants?.length) return;
@@ -150,8 +176,9 @@ export default function PerfumeShowcase({ product, onAddToCart, onBuyNow }: Perf
       brand: product.brand,
       image: product.images?.[0] || '',
       size: product.variants[0].size,
-      price: product.variants[0].price,
+      price: discountedPrice,
       quantity: 1,
+      originalPrice: discountedPrice < originalPrice ? originalPrice : undefined
     });
   };
 
@@ -164,8 +191,9 @@ export default function PerfumeShowcase({ product, onAddToCart, onBuyNow }: Perf
       brand: product.brand,
       image: product.images?.[0] || '',
       size: product.variants[0].size,
-      price: product.variants[0].price,
+      price: discountedPrice,
       quantity: 1,
+      originalPrice: discountedPrice < originalPrice ? originalPrice : undefined
     });
   };
 
@@ -190,6 +218,37 @@ export default function PerfumeShowcase({ product, onAddToCart, onBuyNow }: Perf
           <MotionH1 variants={ANIMATIONS.item} className="text-4xl md:text-7xl serif italic font-black mb-6 text-white leading-tight">
             {product.name}
           </MotionH1>
+
+          {/* Interactive Rating */}
+          <MotionDiv variants={ANIMATIONS.item} className="flex flex-col gap-2 mb-8">
+            <div className="flex items-center gap-1.5">
+              {[...Array(5)].map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => handleRate(i + 1)}
+                  className="transition-transform active:scale-95"
+                >
+                  <Sparkles
+                    size={16}
+                    className={`${(userRating || Math.floor(product.rating || 5)) > i ? "text-blue-500 fill-blue-500" : "text-white/10"}`}
+                  />
+                </button>
+              ))}
+              <span className="text-[10px] text-white/30 font-black ml-2 uppercase tracking-widest">({product.reviewCount || 0} reviews)</span>
+            </div>
+            <AnimatePresence>
+              {hasRated && (
+                <motion.p
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="text-[10px] font-bold text-blue-400 uppercase tracking-widest"
+                >
+                  Vielen Dank für deine Bewertung!
+                </motion.p>
+              )}
+            </AnimatePresence>
+          </MotionDiv>
+
           <MotionP variants={ANIMATIONS.item} className="text-white/40 text-sm leading-loose mb-10 tracking-[0.05em]">
             {product.description}
           </MotionP>
@@ -213,9 +272,23 @@ export default function PerfumeShowcase({ product, onAddToCart, onBuyNow }: Perf
           {/* Price & Actions */}
           <MotionDiv variants={ANIMATIONS.item} className="w-full space-y-6">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-3xl font-black text-white tracking-tighter">
-                ${product.variants?.[0]?.price || '0.00'}
-              </span>
+              <div className="flex flex-col">
+                {savingsPercent > 0 && (
+                  <span className="text-xs text-blue-500/50 line-through font-mono mb-1">
+                    €{originalPrice.toFixed(2)}
+                  </span>
+                )}
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl font-black text-white tracking-tighter">
+                    €{discountedPrice.toFixed(2)}
+                  </span>
+                  {savingsPercent > 0 && (
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase text-white shadow-lg border ${savingsPercent > 30 ? 'animate-sale-urgency' : 'bg-blue-600 border-blue-400'}`}>
+                      -{savingsPercent}%
+                    </span>
+                  )}
+                </div>
+              </div>
               <span className="text-[10px] font-bold text-white/30 tracking-widest uppercase">
                 {product.variants?.[0]?.size || 'Standard'} / Limited Vault
               </span>
@@ -226,19 +299,19 @@ export default function PerfumeShowcase({ product, onAddToCart, onBuyNow }: Perf
                 onClick={handleBuyClick}
                 variant="outline"
                 className="flex-1 h-14"
-                text="Secure Archive"
+                text="SECURE ARCHIVE"
                 disabled={!product.variants?.length}
               >
-                <CreditCard size={14} className="mr-2" /> Buy Now
+                <CreditCard size={14} className="mr-2" /> BUY NOW
               </FlowButton>
               <FlowButton
                 onClick={handleCartClick}
                 variant="glass"
-                className="flex-1 h-14"
-                text="Add to Bag"
+                className="flex-1 h-14 blue-glass"
+                text="ADD TO BAG"
                 disabled={!product.variants?.length}
               >
-                <ShoppingBag size={14} className="mr-2" /> Bag
+                <ShoppingBag size={14} className="mr-2 text-blue-400" />
               </FlowButton>
             </div>
           </MotionDiv>

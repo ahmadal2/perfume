@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 const SectionHeroStatement: React.FC = () => {
     const containerVariants = {
@@ -50,7 +51,7 @@ const SectionHeroStatement: React.FC = () => {
 
                 <motion.h2
                     variants={itemVariants}
-                    className="text-5xl sm:text-6xl md:text-8xl font-black text-white tracking-tighter leading-[0.9] md:leading-none"
+                    className="text-3xl sm:text-6xl md:text-8xl font-black text-white tracking-tighter leading-[1.1] md:leading-none px-2"
                 >
                     Signature scents that <br className="hidden sm:block" />
                     <span className="text-blue-600 italic">tell your story</span>
@@ -92,10 +93,12 @@ const SectionHeroStatement: React.FC = () => {
                     designed to leave an indelible mark on those who encounter them.
                 </motion.p>
 
-                <motion.div variants={itemVariants} className="pt-4 md:pt-8">
-                    <button className="w-full sm:w-auto px-8 md:px-12 py-4 md:py-5 bg-blue-600 text-white font-bold uppercase tracking-[0.2em] md:tracking-[0.3em] text-[10px] md:text-xs hover:bg-blue-500 transition-colors rounded-full shadow-[0_0_30px_rgba(37,99,235,0.2)]">
-                        Discover Our Collections
-                    </button>
+                <motion.div variants={itemVariants} className="pt-6 md:pt-8 flex justify-center">
+                    <Link to="/catalog">
+                        <button className="w-[90%] sm:w-auto px-10 md:px-12 py-5 md:py-5 bg-blue-600 text-white font-bold uppercase tracking-[0.2em] md:tracking-[0.3em] text-[10px] md:text-xs hover:bg-blue-500 transition-all rounded-full shadow-[0_0_30px_rgba(37,99,235,0.2)] active:scale-95">
+                            Discover Our Collections
+                        </button>
+                    </Link>
                 </motion.div>
             </motion.div>
 

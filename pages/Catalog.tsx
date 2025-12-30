@@ -4,9 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Filter, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../services/apiService';
-import { Product, CartItem } from '../types';
+import { Product, CartItem, Sale } from '../types';
 import PerfumeShowcase from '../components/ui/spatial-product-showcase';
+import GridProductCard from '../components/ui/GridProductCard';
 import { TextEffect } from '../components/ui/text-effect';
+import { LayoutGrid, Maximize2 } from 'lucide-react';
 
 interface CatalogProps {
   onAddToCart: (item: CartItem) => void;
@@ -18,22 +20,26 @@ const Catalog: React.FC<CatalogProps> = ({ onAddToCart }) => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
+  const [viewMode, setViewMode] = useState<'cinematic' | 'grid'>('grid');
 
   // Real Data State
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
+  const [sales, setSales] = useState<Sale[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Fetch Data
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [prods, cats] = await Promise.all([
+        const [prods, cats, allSales] = await Promise.all([
           api.getPublicProducts(),
-          api.getCategories()
+          api.getCategories(),
+          api.getSales()
         ]);
         setProducts(prods);
         setCategories(cats);
+        setSales(allSales);
       } catch (error) {
         console.error("Failed to load catalog:", error);
       } finally {
@@ -127,9 +133,6 @@ const Catalog: React.FC<CatalogProps> = ({ onAddToCart }) => {
               <button
                 onClick={() => {
                   setLoading(true);
-                  // useEffect fetch will trigger if we add setProducts([]) or just call fetchData manually
-                  // Let's just reload the page for now as a simple solution, 
-                  // or better, extract fetchData and call it.
                   window.location.reload();
                 }}
                 className="p-4 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
@@ -151,56 +154,93 @@ const Catalog: React.FC<CatalogProps> = ({ onAddToCart }) => {
         </motion.div>
       </div>
 
-      {/* Modern Control Bar */}
-      <div className="max-w-6xl mx-auto px-6 mb-16 relative z-10">
-        <div className="glass-panel p-2 rounded-[2rem] lg:rounded-full flex flex-col lg:flex-row items-center gap-2 border border-white/5 bg-white/[0.02] shadow-2xl backdrop-blur-3xl">
-          <div className="relative flex-1 w-full lg:w-auto">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20" size={14} />
+      {/* 2026 Refined Control Bar */}
+      <div className="max-w-4xl mx-auto px-6 mb-20 relative z-20">
+        <div className="flex flex-col lg:flex-row items-center gap-4 bg-[#0a0d14]/40 backdrop-blur-3xl border border-white/5 p-2 rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.5)]">
+
+          {/* Search & Meta Icons */}
+          <div className="flex items-center gap-2 pl-4 flex-1 w-full lg:w-auto">
+            <Search className="text-white/20" size={16} />
             <input
               type="text"
-              placeholder="Query the archive..."
+              placeholder="Search Archives..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-transparent border-none pl-14 pr-8 py-4 text-[10px] uppercase tracking-[0.4em] focus:outline-none placeholder:text-white/10 text-white font-black"
+              className="bg-transparent border-none py-3 text-[11px] uppercase tracking-[0.3em] focus:outline-none placeholder:text-white/10 text-white font-bold w-full"
             />
+
+            <div className="h-6 w-px bg-white/10 mx-2" />
+
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setViewMode('cinematic')}
+                className={`p-2.5 rounded-xl transition-all ${viewMode === 'cinematic' ? 'bg-white/10 text-white' : 'text-white/20 hover:text-white'}`}
+              >
+                <Maximize2 size={16} />
+              </button>
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-2.5 rounded-xl transition-all ${viewMode === 'grid' ? 'bg-blue-600 text-white shadow-lg' : 'text-white/20 hover:text-white'}`}
+              >
+                <LayoutGrid size={16} />
+              </button>
+            </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-2 p-1 w-full">
-            <div className="flex flex-wrap justify-center gap-2 w-full sm:w-auto">
-              {filterButtons.map(btn => (
-                <button
-                  key={btn.id}
-                  onClick={() => setActiveFilter(btn.id)}
-                  className={`px-4 py-3 md:px-6 md:py-2.5 rounded-xl md:rounded-full text-[10px] md:text-[9px] uppercase tracking-[0.2em] md:tracking-[0.3em] transition-all duration-500 font-black flex-1 sm:flex-none ${activeFilter === btn.id
-                    ? 'bg-blue-600 text-white shadow-[0_0_20px_rgba(37,99,235,0.4)]'
-                    : 'bg-white/5 border border-white/5 text-white/40 hover:text-white hover:bg-white/10'
-                    }`}
-                >
-                  {btn.label}
-                </button>
-              ))}
-            </div>
+          {/* Filter & Sort Pills */}
+          <div className="flex items-center gap-2 p-1 w-full lg:w-auto overflow-x-auto no-scrollbar justify-center">
+            {filterButtons.map(btn => (
+              <button
+                key={btn.id}
+                onClick={() => setActiveFilter(btn.id)}
+                className={`whitespace-nowrap px-6 py-3 rounded-full text-[9px] uppercase tracking-[0.2em] font-black transition-all duration-500 border ${activeFilter === btn.id
+                  ? 'bg-blue-600 border-blue-500 text-white shadow-[0_0_20px_rgba(37,99,235,0.4)]'
+                  : 'bg-white/5 border-white/5 text-white/40 hover:text-white hover:bg-white/10'
+                  }`}
+              >
+                {btn.label}
+              </button>
+            ))}
           </div>
         </div>
       </div>
 
-      <div className="w-full">
+      <div className={`w-full ${viewMode === 'grid' ? 'max-w-7xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8' : ''}`}>
         <AnimatePresence mode="popLayout">
-          {filteredProducts.map((product) => (
-            <motion.div
-              key={product.id}
-              initial={{ opacity: 0, filter: 'blur(10px)' }}
-              whileInView={{ opacity: 1, filter: 'blur(0px)' }}
-              viewport={{ margin: "-100px" }}
-              transition={{ duration: 1 }}
-            >
-              <PerfumeShowcase
-                product={product}
-                onAddToCart={onAddToCart}
-                onBuyNow={handleBuyNow}
-              />
-            </motion.div>
-          ))}
+          {filteredProducts.map((product) => {
+            const activeSale = sales.find(s => s.isActive && (
+              s.appliesTo === 'all' ||
+              (s.appliesTo === 'specific_products' && s.targetIds?.includes(product.id)) ||
+              (s.appliesTo === 'specific_categories' && s.targetIds?.includes(product.category))
+            ));
+
+            return (
+              <motion.div
+                key={product.id}
+                initial={{ opacity: 0, filter: 'blur(10px)' }}
+                whileInView={{ opacity: 1, filter: 'blur(0px)' }}
+                viewport={{ margin: "-100px" }}
+                transition={{ duration: 1 }}
+                layout
+              >
+                {viewMode === 'cinematic' ? (
+                  <PerfumeShowcase
+                    product={product}
+                    onAddToCart={onAddToCart}
+                    onBuyNow={handleBuyNow}
+                    activeSale={activeSale}
+                  />
+                ) : (
+                  <GridProductCard
+                    product={product}
+                    onAddToCart={onAddToCart}
+                    onBuyNow={handleBuyNow}
+                    activeSale={activeSale}
+                  />
+                )}
+              </motion.div>
+            );
+          })}
         </AnimatePresence>
 
         {filteredProducts.length === 0 && (

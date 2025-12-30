@@ -7,7 +7,7 @@ import { cn } from '../../lib/utils';
 // Fix: Correctly extend React.ButtonHTMLAttributes to include standard props like className, children, type, and onClick.
 interface FlowButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   text?: string;
-  variant?: 'blue' | 'glass' | 'outline' | 'gold';
+  variant?: 'blue' | 'glass' | 'outline' | 'gold' | 'custom';
   children?: React.ReactNode;
   className?: string;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
@@ -25,14 +25,16 @@ export function FlowButton({
     blue: "border-blue-500/30 bg-blue-500/5 backdrop-blur-xl text-blue-400 hover:border-blue-500/60 hover:text-white",
     glass: "border-white/10 bg-white/[0.03] backdrop-blur-2xl text-white hover:border-white/40 hover:text-black",
     outline: "border-white/20 bg-transparent text-white hover:bg-white hover:text-black",
-    gold: "border-[#D4AF37]/30 bg-[#D4AF37]/5 backdrop-blur-xl text-[#D4AF37] hover:border-[#D4AF37]/60 hover:text-black"
+    gold: "border-[#D4AF37]/30 bg-[#D4AF37]/5 backdrop-blur-xl text-[#D4AF37] hover:border-[#D4AF37]/60 hover:text-black",
+    custom: ""
   };
 
   const circles = {
     blue: "bg-blue-600",
     glass: "bg-white",
     outline: "bg-white",
-    gold: "bg-[#D4AF37]"
+    gold: "bg-[#D4AF37]",
+    custom: "bg-white/10"
   };
 
   const selectedVariant = variants[variant] || variants.blue;

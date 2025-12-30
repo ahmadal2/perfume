@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global Mobile Fixes */
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  overscroll-behavior-y: none;
+  touch-action: manipulation;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 /* Custom animations for gaming login */
 @keyframes success {
   0% {
@@ -34,6 +45,24 @@
 .animate-fade-in {
   animation: fade-in 0.5s ease-out forwards;
 }
+
+/* Spotlight Animation */
+@keyframes spotlight {
+  0% {
+    opacity: 0;
+    transform: translate(-72%, -62%) scale(0.5);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -40%) scale(1);
+  }
+}
+
+.animate-spotlight {
+  animation: spotlight 2s ease .75s 1 forwards;
+}
+
 
 /* --- GLASS INPUT STYLES (From sign-up.tsx) --- */
 input[type="password"]::-ms-reveal,
@@ -217,6 +246,27 @@ input:-webkit-autofill::first-line {
   box-shadow: 0 0 30px rgba(59, 130, 246, 0.05);
 }
 
+@keyframes soft-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: scale(1.1);
+    opacity: 0.4;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+}
+
+.animate-soft-pulse {
+  animation: soft-pulse 3s ease-in-out infinite;
+}
+
 @keyframes sapphire-pulse {
   0% {
     opacity: 0.3;
@@ -231,6 +281,45 @@ input:-webkit-autofill::first-line {
   }
 }
 
-.animate-sapphire-pulse {
-  animation: sapphire-pulse 4s ease-in-out infinite;
+@keyframes sale-urgency {
+  0% {
+    background-position: 0% 50%;
+    border-color: rgba(59, 130, 246, 0.5);
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+  }
+
+  50% {
+    background-position: 100% 50%;
+    border-color: rgba(239, 68, 68, 0.8);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+  }
+
+  100% {
+    background-position: 0% 50%;
+    border-color: rgba(59, 130, 246, 0.5);
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+  }
+}
+
+.animate-sale-urgency {
+  background: linear-gradient(-45deg, #3b82f6, #ef4444, #3b82f6, #ef4444);
+  background-size: 400% 400%;
+  animation: sale-urgency 3s ease infinite;
+}
+
+.blue-glass {
+  background: rgba(59, 130, 246, 0.05) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(59, 130, 246, 0.2) !important;
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1) !important;
+}
+
+.blue-glass:hover {
+  background: rgba(59, 130, 246, 0.1) !important;
+  border-color: rgba(59, 130, 246, 0.4) !important;
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.1) !important;
+}
+
+.shadow-glow-blue {
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
 }

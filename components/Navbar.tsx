@@ -59,24 +59,15 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount, toggleCart, user, onLogout }
               </Link>
             </div>
 
-            {/* Desktop Nav */}
-            <div className="hidden md:flex items-center space-x-12">
+            {/* Desktop Nav - Modern 2026 */}
+            <div className="hidden md:flex items-center gap-8 bg-[#030303]/50 backdrop-blur-2xl border border-white/5 border-t-white/10 px-10 py-3 rounded-full shadow-[0_0_40px_-10px_rgba(59,130,246,0.4)] hover:shadow-[0_0_60px_-5px_rgba(59,130,246,0.6)] hover:border-blue-500/30 transition-all duration-500">
               {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  to={link.path}
-                  className={`text-[9px] tracking-[0.4em] uppercase transition-all duration-300 font-black relative group ${location.pathname === link.path
-                    ? 'text-blue-500'
-                    : 'text-white/60 hover:text-blue-500'
-                    }`}
-                >
-                  {link.name}
-                  {location.pathname === link.path && (
-                    <motion.div
-                      layoutId="navUnderline"
-                      className="absolute -bottom-1 left-0 right-0 h-px bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]"
-                    />
-                  )}
+                <Link key={link.name} to={link.path} className="relative group px-2 py-1">
+                  <span className={`relative z-10 text-[10px] font-bold uppercase tracking-[0.25em] transition-all duration-300 ${location.pathname === link.path ? 'text-white drop-shadow-[0_0_10px_rgba(59,130,246,0.8)]' : 'text-white/70 group-hover:text-white group-hover:drop-shadow-[0_0_10px_rgba(59,130,246,0.8)]'}`}>
+                    {link.name}
+                  </span>
+                  <span className={`absolute -bottom-2 left-1/2 -translate-x-1/2 h-[1.5px] bg-gradient-to-r from-transparent via-blue-400 to-transparent transition-all duration-500 shadow-[0_0_15px_#3b82f6] ${location.pathname === link.path ? 'w-full' : 'w-0 group-hover:w-full'}`} />
+                  <div className="absolute inset-0 -z-10 bg-blue-400/10 scale-0 group-hover:scale-[2] rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-all duration-500" />
                 </Link>
               ))}
             </div>

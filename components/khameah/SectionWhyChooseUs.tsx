@@ -5,26 +5,26 @@ const tabs = [
     {
         id: "notes",
         title: "THE NOTES",
-        description: "Top notes: Bergamot, Cinnamon | Heart notes: Dates, Praline | Base notes: Vanilla, Myrrh",
-        image: "/imag/lattafa khamrah.jpg"
+        description: "Top notes: Bergamot, Citrus | Heart notes: Jasmine, Rose | Base notes: Musk, Amber",
+        image: "https://images.unsplash.com/photo-1615484477778-ca3b77940c25?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: "craft",
         title: "THE CRAFT",
-        description: "Artisanal distillation process ensuring 94% purity and 24-hour projected longevity.",
-        image: "/imag/Lattafa Khamrah Eau De Parfum 100ml (Unisex).jpg"
+        description: "Ingredient sourcing: We select only the rarest flowers, woods, and spices from sustainable origins.",
+        image: "https://images.unsplash.com/photo-1616091093740-4ce0d16be9e4?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: "bottle",
         title: "THE BOTTLE",
-        description: "Exquisite crystal vessel designed with architectural precision to capture the light.",
-        image: "/imag/Khamrah by Lattafa – A Spiced Gourmand Fantasy.jpg"
+        description: "Packaging craftsmanship: Hand-blown crystal glass, capped with brushed gold alloy for a heavy, premium feel.",
+        image: "https://images.unsplash.com/photo-1613525531988-cb5f87b32832?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: "experience",
         title: "THE EXPERIENCE",
-        description: "A sensory journey that defies physics, designed for sovereigns of the new era.",
-        image: "/imag/kha1.png"
+        description: "A sensory journey. 24+ hour longevity with massive projection that commands attention in any room.",
+        image: "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?q=80&w=1000&auto=format&fit=crop"
     }
 ];
 
@@ -38,9 +38,6 @@ const SectionWhyChooseUs: React.FC = () => {
     // Determine active index based on scroll progress
     const activeIndex = useTransform(scrollYProgress, [0, 0.25, 0.5, 0.75, 1], [0, 1, 2, 3, 3]);
 
-    // We need to use state for the UI because useTransform is for animations
-    // But we can trigger state changes or just use the transform for visual elements
-    // For simplicity and performance, I'll use a listener to update the active tab UI
     const [currentTab, setCurrentTab] = React.useState(0);
 
     React.useEffect(() => {
@@ -53,14 +50,17 @@ const SectionWhyChooseUs: React.FC = () => {
     }, [activeIndex, currentTab]);
 
     return (
-        <section ref={containerRef} className="relative h-[400vh] bg-black">
+        <section ref={containerRef} className="relative h-[200vh] md:h-[400vh] bg-black">
             <div className="sticky top-0 h-screen w-full flex flex-col md:flex-row items-center justify-between px-6 md:px-20 gap-10">
 
                 {/* Left Side: Tabs & Info */}
-                <div className="w-full md:w-1/2 space-y-8 md:space-y-12 z-10 py-10 md:py-0">
-                    <div className="space-y-3 md:space-y-4">
-                        <span className="font-mono text-blue-500 text-[10px] md:text-xs tracking-[0.8em] md:tracking-[1em] uppercase">Why Choose Us</span>
-                        <h2 className="text-4xl md:text-7xl font-black text-white tracking-tighter leading-tight md:leading-none">The Essence of <br /><span className="text-blue-500 italic">Excellence</span></h2>
+                <div className="w-full md:w-1/2 space-y-6 md:space-y-12 z-10 py-10 md:py-0">
+                    <div className="space-y-2 md:space-y-4">
+                        <span className="font-mono text-blue-500 text-[8px] md:text-xs tracking-[0.6em] md:tracking-[1em] uppercase">Why Choose Us</span>
+                        <h2 className="text-3xl sm:text-4xl md:text-7xl font-black text-white tracking-tighter leading-[1.1] md:leading-none">
+                            The Essence of <br />
+                            <span className="text-blue-500 italic">Excellence</span>
+                        </h2>
                     </div>
 
                     <div className="flex flex-col gap-4 md:gap-6">

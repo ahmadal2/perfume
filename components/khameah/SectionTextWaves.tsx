@@ -28,19 +28,19 @@ const SectionTextWaves: React.FC = () => {
             </motion.div>
 
             <motion.div style={{ opacity }} className="relative z-10 w-full flex flex-col items-center text-center space-y-12 md:space-y-20">
-                <motion.h2 style={{ y: y1 }} className="text-7xl md:text-[12vw] font-black uppercase tracking-tighter text-white/90 leading-none">
+                <motion.h2 style={{ y: y1 }} className="text-4xl sm:text-7xl md:text-[12vw] font-black uppercase tracking-tighter text-white/90 leading-none">
                     Artisan
                 </motion.h2>
-                <motion.h2 style={{ y: y2 }} className="text-7xl md:text-[12vw] font-black uppercase tracking-tighter text-blue-500 italic leading-none ml-20 md:ml-40">
+                <motion.h2 style={{ y: y2 }} className="text-4xl sm:text-7xl md:text-[12vw] font-black uppercase tracking-tighter text-blue-500 italic leading-none ml-10 md:ml-40">
                     crafted
                 </motion.h2>
-                <motion.h2 style={{ y: y3 }} className="text-7xl md:text-[12vw] font-black uppercase tracking-tighter text-white/80 leading-none mr-20 md:mr-40">
+                <motion.h2 style={{ y: y3 }} className="text-4xl sm:text-7xl md:text-[12vw] font-black uppercase tracking-tighter text-white/80 leading-none mr-10 md:mr-40">
                     fragrances
                 </motion.h2>
-                <motion.h2 style={{ y: y4 }} className="text-7xl md:text-[12vw] font-black uppercase tracking-tighter text-blue-500 leading-none">
+                <motion.h2 style={{ y: y4 }} className="text-4xl sm:text-7xl md:text-[12vw] font-black uppercase tracking-tighter text-blue-500 leading-none">
                     capture
                 </motion.h2>
-                <motion.h2 style={{ y: y5 }} className="text-7xl md:text-[12vw] font-black uppercase tracking-tighter text-white/90 leading-none italic">
+                <motion.h2 style={{ y: y5 }} className="text-4xl sm:text-7xl md:text-[12vw] font-black uppercase tracking-tighter text-white/90 leading-none italic">
                     emotion
                 </motion.h2>
 

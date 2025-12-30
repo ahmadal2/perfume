@@ -257,6 +257,52 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData, onClose, 
                         />
                     </div>
 
+                    {/* Social Proof Section */}
+                    <div className="space-y-4">
+                        <h3 className="text-xl serif italic">Social Proof</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="space-y-2">
+                                <label className="text-[10px] uppercase tracking-widest text-white/50">Rating (0.0 - 5.0)</label>
+                                <input
+                                    type="number"
+                                    step="0.1"
+                                    min="0"
+                                    max="5"
+                                    value={formData.rating || 5}
+                                    onChange={e => updateField('rating', parseFloat(e.target.value))}
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-blue-500/50"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] uppercase tracking-widest text-white/50">Total Reviews</label>
+                                <input
+                                    type="number"
+                                    value={formData.reviewCount || 0}
+                                    onChange={e => updateField('reviewCount', parseInt(e.target.value))}
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-blue-500/50"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] uppercase tracking-widest text-white/50">Sales Count (Displayed)</label>
+                                <input
+                                    type="number"
+                                    value={formData.salesCount || 0}
+                                    onChange={e => updateField('salesCount', parseInt(e.target.value))}
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-blue-500/50"
+                                />
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] uppercase tracking-widest text-white/50">Delivery Time (e.g. In 1-3 Tagen bei dir)</label>
+                            <input
+                                value={formData.deliveryTime || ''}
+                                onChange={e => updateField('deliveryTime', e.target.value)}
+                                className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white placeholder:text-white/20 focus:outline-none focus:border-blue-500/50"
+                                placeholder="In 1-3 Tagen bei dir"
+                            />
+                        </div>
+                    </div>
+
                     {/* Fragrance Notes */}
                     <div className="space-y-4">
                         <h3 className="text-xl serif italic">Olfactory Pyramid</h3>
@@ -293,31 +339,71 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData, onClose, 
 
                         <div className="space-y-4">
                             {formData.variants?.map((v, idx) => (
-                                <div key={idx} className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end bg-white/[0.02] p-4 rounded-xl border border-white/5">
-                                    <div className="space-y-1">
-                                        <label className="text-[9px] uppercase tracking-widest text-white/40">Size</label>
-                                        <select
-                                            value={v.size}
-                                            onChange={e => updateVariant(idx, 'size', e.target.value)}
-                                            className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm text-white [&>option]:text-black"
-                                        >
-                                            {['30ml', '50ml', '100ml', 'custom'].map(s => <option key={s} value={s}>{s}</option>)}
-                                        </select>
+                                <div key={idx} className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end bg-white/[0.02] p-4 rounded-2xl border border-white/5 group/variant">
+                                    <div className="md:col-span-2 space-y-1">
+                                        <label className="text-[9px] uppercase tracking-widest text-white/40">Size / Volume</label>
+                                        <div className="flex gap-2">
+                                            <select
+                                                value={['30ml', '50ml', '100ml'].includes(v.size) ? v.size : 'custom'}
+                                                onChange={e => {
+                                                    const val = e.target.value;
+                                                    updateVariant(idx, 'size', val === 'custom' ? '' : val);
+                                                }}
+                                                className="bg-white/5 border border-white/10 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-blue-500/50 [&>option]:text-black"
+                                            >
+                                                <option value="50ml">50ml</option>
+                                                <option value="100ml">100ml</option>
+                                                <option value="30ml">30ml</option>
+                                                <option value="custom">Custom...</option>
+                                            </select>
+                                            {!['30ml', '50ml', '100ml'].includes(v.size) && (
+                                                <input
+                                                    type="text"
+                                                    value={v.size}
+                                                    onChange={e => updateVariant(idx, 'size', e.target.value)}
+                                                    placeholder="e.g. 250ml"
+                                                    className="flex-1 bg-white/5 border border-white/10 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-blue-500/50"
+                                                />
+                                            )}
+                                        </div>
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[9px] uppercase tracking-widest text-white/40">Price ($)</label>
-                                        <input type="number" step="0.01" value={v.price} onChange={e => updateVariant(idx, 'price', parseFloat(e.target.value))} className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm text-white" />
+                                        <label className="text-[9px] uppercase tracking-widest text-white/40">Price (€)</label>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            value={v.price}
+                                            onChange={e => updateVariant(idx, 'price', parseFloat(e.target.value))}
+                                            className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-blue-500/50"
+                                        />
                                     </div>
                                     <div className="space-y-1">
                                         <label className="text-[9px] uppercase tracking-widest text-white/40">Stock</label>
-                                        <input type="number" value={v.stock} onChange={e => updateVariant(idx, 'stock', parseInt(e.target.value))} className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm text-white" />
+                                        <input
+                                            type="number"
+                                            value={v.stock}
+                                            onChange={e => updateVariant(idx, 'stock', parseInt(e.target.value))}
+                                            className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-blue-500/50"
+                                        />
                                     </div>
                                     <div className="space-y-1">
                                         <label className="text-[9px] uppercase tracking-widest text-white/40">SKU</label>
-                                        <input type="text" value={v.sku} onChange={e => updateVariant(idx, 'sku', e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm text-white" />
+                                        <input
+                                            type="text"
+                                            value={v.sku}
+                                            onChange={e => updateVariant(idx, 'sku', e.target.value)}
+                                            placeholder="SKU-001"
+                                            className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-blue-500/50"
+                                        />
                                     </div>
-                                    <div className="flex justify-end pb-2">
-                                        <button type="button" onClick={() => removeVariant(idx)} className="text-red-500/50 hover:text-red-500"><Trash2 size={16} /></button>
+                                    <div className="flex justify-end pb-1.5">
+                                        <button
+                                            type="button"
+                                            onClick={() => removeVariant(idx)}
+                                            className="w-9 h-9 flex items-center justify-center rounded-lg bg-red-500/10 text-red-500/50 hover:text-red-500 hover:bg-red-500/20 transition-all"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
                                     </div>
                                 </div>
                             ))}
@@ -327,41 +413,98 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData, onClose, 
                         </div>
                     </div>
 
-                    {/* Image Upload */}
+                    {/* Image Upload Gallery */}
                     <div className="space-y-4">
-                        <label className="text-[10px] uppercase tracking-widest text-white/50">Primary Image</label>
+                        <label className="text-[10px] uppercase tracking-widest text-white/50">Product Gallery (Max 5)</label>
 
-                        {/* Desktop Upload */}
-                        <div className="flex items-center gap-4">
-                            <label className="flex items-center justify-center px-4 py-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors cursor-pointer gap-2">
-                                <Upload size={16} className="text-white/60" />
-                                <span className="text-sm text-white/80">Upload File</span>
-                                <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {/* Existing Images */}
+                            {formData.images?.map((img, idx) => (
+                                <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-white/20 group">
+                                    <img src={img} alt={`Product ${idx + 1}`} className="w-full h-full object-cover" />
+                                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const newImages = [...(formData.images || [])];
+                                                newImages.splice(idx, 1);
+                                                setFormData({ ...formData, images: newImages });
+                                            }}
+                                            className="p-2 bg-red-500/20 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
+                                    {idx === 0 && (
+                                        <div className="absolute top-2 left-2 px-2 py-1 bg-blue-500 text-white text-[8px] font-bold uppercase tracking-widest rounded-md">
+                                            Primary
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+
+                            {/* Upload Button */}
+                            <label className="aspect-square rounded-xl border border-dashed border-white/20 hover:border-blue-500/50 hover:bg-blue-500/5 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 group">
+                                <div className="p-3 rounded-full bg-white/5 group-hover:bg-blue-500/20 group-hover:text-blue-500 transition-colors">
+                                    <Upload size={20} />
+                                </div>
+                                <span className="text-[9px] uppercase tracking-widest text-white/40 group-hover:text-blue-400">Add Image</span>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={async (e) => {
+                                        const file = e.target.files?.[0];
+                                        if (!file) return;
+                                        setLoading(true);
+                                        try {
+                                            const compressed = await compressImage(file);
+                                            const url = await api.uploadImage(compressed);
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                images: [...(prev.images || []), url]
+                                            }));
+                                        } catch (error: any) {
+                                            alert(`Upload failed: ${error.message}`);
+                                        } finally {
+                                            setLoading(false);
+                                        }
+                                    }}
+                                />
                             </label>
-                            <span className="text-xs text-white/30 uppercase tracking-widest">OR</span>
-
-                            {/* URL Input */}
-                            <input
-                                value={formData.images?.[0] || ''}
-                                onChange={e => {
-                                    const newImages = [...(formData.images || [])];
-                                    newImages[0] = e.target.value;
-                                    setFormData(prev => ({ ...prev, images: newImages }));
-                                }}
-                                className="flex-1 bg-white/5 border border-white/10 rounded-xl p-3 text-white placeholder:text-white/20 focus:outline-none focus:border-blue-500/50"
-                                placeholder="Paste Image URL..."
-                            />
                         </div>
 
-                        {/* Preview */}
-                        {formData.images?.[0] && (
-                            <div className="relative w-32 h-32 rounded-xl overflow-hidden border border-white/20 group">
-                                <img src={formData.images[0]} alt="Preview" className="w-full h-full object-cover" />
-                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                    <p className="text-[9px] uppercase tracking-widest text-white">Preview</p>
-                                </div>
-                            </div>
-                        )}
+                        {/* URL Paste Option */}
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                placeholder="Or paste image URL..."
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        const url = e.currentTarget.value;
+                                        if (url) {
+                                            setFormData(prev => ({ ...prev, images: [...(prev.images || []), url] }));
+                                            e.currentTarget.value = '';
+                                        }
+                                    }
+                                }}
+                                className="flex-1 bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-blue-500/50"
+                            />
+                            <button
+                                type="button"
+                                className="px-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10"
+                                onClick={(e) => {
+                                    const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                                    if (input.value) {
+                                        setFormData(prev => ({ ...prev, images: [...(prev.images || []), input.value] }));
+                                        input.value = '';
+                                    }
+                                }}
+                            >
+                                <Plus size={16} />
+                            </button>
+                        </div>
                     </div>
 
                     <div className="flex justify-end gap-4 pt-8">

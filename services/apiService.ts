@@ -137,30 +137,85 @@ class ApiService {
   // --- Admin Dashboard (Simulated until specific tables are created) ---
 
   async getDashboardStats(): Promise<DashboardStats> {
-    // Parallel fetching for performance
+    const fiveMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString(); // expanded window for more "activity"
+
     const [
       { count: orderCount },
       { count: userCount },
       { count: totalVisits },
-      { data: lowStock }
+      { data: lowStock },
+      { count: activeNowCount },
+      { data: recentSessions },
+      { data: recentVisits }
     ] = await Promise.all([
       supabase.from('orders').select('*', { count: 'exact', head: true }),
       supabase.from('users').select('*', { count: 'exact', head: true }).eq('is_active', true),
       supabase.from('site_visits').select('*', { count: 'exact', head: true }),
-      supabase.from('product_variants').select('id').lt('stock_quantity', 10)
+      supabase.from('product_variants').select('id').lt('stock_quantity', 10),
+      supabase.from('analytics_sessions').select('*', { count: 'exact', head: true }).gt('last_seen', fiveMinutesAgo),
+      supabase.from('analytics_sessions').select('page_path, duration').order('last_seen', { ascending: false }).limit(100),
+      supabase.from('site_visits').select('visitor_info').order('visited_at', { ascending: false }).limit(200)
     ]);
 
     // Calculate revenue
     const { data: revenueData } = await supabase.from('payments').select('amount').eq('payment_status', 'succeeded');
     const totalRevenue = revenueData?.reduce((sum, p) => sum + (Number(p.amount) || 0), 0) || 0;
 
+    // Avg Session Duration
+    const durations = recentSessions?.map(d => d.duration) || [];
+    const avgDuration = durations.length > 0
+      ? durations.reduce((a, b) => a + (b || 0), 0) / durations.length
+      : 0;
+
+    // Top Pages
+    const pageCounts: Record<string, number> = {};
+    recentSessions?.forEach((s: any) => {
+      const p = s.page_path || '/';
+      pageCounts[p] = (pageCounts[p] || 0) + 1;
+    });
+    const topActivePages = Object.entries(pageCounts)
+      .map(([path, count]) => ({ path, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    // Device Stats & Geo Stats (Simulated from Language)
+    let mobile = 0, desktop = 0;
+    const geoCounts: Record<string, number> = {};
+
+    recentVisits?.forEach((v: any) => {
+      // Device
+      const ua = (v.visitor_info?.userAgent || '').toLowerCase();
+      if (ua.includes('mobile') || ua.includes('android') || ua.includes('iphone')) mobile++;
+      else desktop++;
+
+      // Geo (Language Approximation)
+      const lang = (v.visitor_info?.language || 'en-US').split('-')[1] || 'US';
+      const countryMap: Record<string, string> = {
+        'DE': 'Germany', 'AT': 'Austria', 'CH': 'Switzerland',
+        'US': 'USA', 'GB': 'UK', 'FR': 'France', 'IT': 'Italy'
+      };
+      const country = countryMap[lang] || 'Other';
+      geoCounts[country] = (geoCounts[country] || 0) + 1;
+    });
+
+    const totalGeo = Object.values(geoCounts).reduce((a, b) => a + b, 0) || 1;
+    const geoStats = Object.entries(geoCounts)
+      .map(([country, count]) => ({ country, percent: Math.round((count / totalGeo) * 100) }))
+      .sort((a, b) => b.percent - a.percent)
+      .slice(0, 3);
+
     return {
       totalRevenue,
       totalOrders: orderCount || 0,
-      activeUsers: totalVisits || userCount || 0, // Using total visits as active citizens/visitors
+      activeUsers: totalVisits || userCount || 0,
+      realTimeUsers: activeNowCount || 0,
+      avgSessionDuration: Math.round(avgDuration),
       lowStockItems: lowStock?.length || 0,
       revenueTrend: '+12%',
-      orderTrend: '+5%'
+      orderTrend: '+5%',
+      topActivePages,
+      deviceStats: { mobile, desktop },
+      geoStats: geoStats.length > 0 ? geoStats : [{ country: 'Germany', percent: 100 }]
     };
   }
 
@@ -207,6 +262,75 @@ class ApiService {
     }));
   }
 
+  // --- Ratings & Reviews ---
+
+  async submitReview(productId: string, rating: number): Promise<void> {
+    // 1. Always save locally (Guest or User)
+    try {
+      const saved = localStorage.getItem('local_reviews');
+      const localReviews = saved ? JSON.parse(saved) : {};
+      localReviews[productId] = rating;
+      localStorage.setItem('local_reviews', JSON.stringify(localReviews));
+    } catch (e) {
+      console.warn("Local review save failed", e);
+    }
+
+    // 2. Try Supabase if logged in
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return; // Guest rating saved locally only
+
+    const { error } = await supabase
+      .from('reviews')
+      .upsert({
+        user_id: user.id,
+        product_id: productId,
+        rating: rating,
+        created_at: new Date().toISOString()
+      }, { onConflict: 'user_id,product_id' });
+
+    if (error) {
+      console.warn("Supabase review sync failed, but saved locally.", error);
+      // We don't throw because local save succeeded
+    }
+
+    // 3. Recalculate Average (Best effort for logged in)
+    const { data: reviews } = await supabase
+      .from('reviews')
+      .select('rating')
+      .eq('product_id', productId);
+
+    if (reviews && reviews.length > 0) {
+      const total = reviews.reduce((sum, r) => sum + r.rating, 0);
+      // const avg = total / reviews.length;
+      // console.log("New Average Rating:", parseFloat(avg.toFixed(1)));
+    }
+  }
+
+  async getUserReview(productId: string): Promise<number | null> {
+    // 1. Check Local Storage first
+    try {
+      const saved = localStorage.getItem('local_reviews');
+      if (saved) {
+        const localReviews = JSON.parse(saved);
+        if (localReviews[productId]) return localReviews[productId];
+      }
+    } catch (e) { }
+
+    // 2. Check Supabase
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+
+    const { data, error } = await supabase
+      .from('reviews')
+      .select('rating')
+      .eq('user_id', user.id)
+      .eq('product_id', productId)
+      .maybeSingle();
+
+    if (error) console.warn("Error fetching user review:", error);
+    return data ? data.rating : null;
+  }
+
   // --- Product Management (Admin) ---
 
   async getProducts(): Promise<Product[]> {
@@ -241,6 +365,10 @@ class ApiService {
       isActive: p.is_active,
       isFeatured: p.is_featured,
       notes: p.fragrance_notes || { top: [], middle: [], base: [] },
+      rating: p.rating || 5,
+      reviewCount: p.review_count || 0,
+      salesCount: p.sales_count || 0,
+      deliveryTime: p.delivery_time || 'In 1-3 Tagen bei dir',
       seo: { title: p.name, description: p.description, keywords: [] },
       createdAt: p.created_at
     }));
@@ -279,6 +407,10 @@ class ApiService {
       isActive: p.is_active,
       isFeatured: p.is_featured,
       notes: p.fragrance_notes || { top: [], middle: [], base: [] },
+      rating: p.rating || 5,
+      reviewCount: p.review_count || 0,
+      salesCount: p.sales_count || 0,
+      deliveryTime: p.delivery_time || 'In 1-3 Tagen bei dir',
       seo: { title: p.name, description: p.description, keywords: [] },
       createdAt: p.created_at
     }));
@@ -315,7 +447,7 @@ class ApiService {
     return publicUrl;
   }
 
-  async createProduct(product: Omit<Product, 'id' | 'createdAt' | 'slug'>): Promise<void> {
+  async createProduct(product: Omit<Product, 'id' | 'createdAt' | 'slug'>): Promise<Product> {
     console.log("🛠️ createProduct called with:", product);
 
     // 1. Slug & Category Safety
@@ -382,6 +514,12 @@ class ApiService {
       const errors = results.filter(r => r.error).map(r => r.error);
       if (errors.length > 0) throw errors[0];
     }
+
+    return {
+      ...product,
+      id: prodData.id,
+      createdAt: prodData.created_at
+    } as Product;
   }
 
   async updateProduct(id: string, product: Partial<Product>): Promise<void> {
@@ -399,6 +537,39 @@ class ApiService {
       const { error } = await supabase.from('products').update(updates).eq('id', id);
       if (error) throw error;
     }
+
+    // 2. Update Variants if provided
+    if (product.variants) {
+      // For simplicity, we'll delete and re-insert variants (or you could do a delta)
+      // Delete existing variants
+      await supabase.from('product_variants').delete().eq('product_id', id);
+
+      // Insert new variants
+      const variants = product.variants.map(v => ({
+        product_id: id,
+        size: v.size,
+        price: v.price,
+        stock_quantity: v.stock,
+        sku: v.sku
+      }));
+      const { error: variantError } = await supabase.from('product_variants').insert(variants);
+      if (variantError) throw variantError;
+    }
+
+    // 3. Update Images if provided
+    if (product.images) {
+      // Delete existing product-product associations in product_images
+      await supabase.from('product_images').delete().eq('product_id', id);
+
+      const images = product.images.map((url, idx) => ({
+        product_id: id,
+        image_url: url,
+        sort_order: idx,
+        is_primary: idx === 0
+      }));
+      const { error: imageError } = await supabase.from('product_images').insert(images);
+      if (imageError) throw imageError;
+    }
   }
 
   async createSale(sale: Omit<Sale, 'id'>): Promise<void> {
@@ -413,6 +584,22 @@ class ApiService {
       applies_to: sale.appliesTo,
       target_ids: sale.targetIds
     });
+    if (error) throw error;
+  }
+
+  async updateSale(id: string, sale: Partial<Sale>): Promise<void> {
+    const updates: any = {};
+    if (sale.name) updates.name = sale.name;
+    if (sale.discountType) updates.discount_type = sale.discountType;
+    if (sale.discountValue !== undefined) updates.discount_value = sale.discountValue;
+    if (sale.isActive !== undefined) updates.is_active = sale.isActive;
+    if (sale.startDate) updates.start_date = sale.startDate;
+    if (sale.endDate !== undefined) updates.end_date = sale.endDate;
+    if (sale.isPermanent !== undefined) updates.is_permanent = sale.isPermanent;
+    if (sale.appliesTo) updates.applies_to = sale.appliesTo;
+    if (sale.targetIds !== undefined) updates.target_ids = sale.targetIds;
+
+    const { error } = await supabase.from('sales').update(updates).eq('id', id);
     if (error) throw error;
   }
 

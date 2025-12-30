@@ -34,9 +34,10 @@ const AppContent: React.FC<{
   setIsCartOpen: (o: boolean) => void,
   isLoading: boolean,
   setFinishLoading: () => void,
-  user: User | null,
-  setUser: (u: User | null) => void
-}> = ({ cart, addToCart, wishlist, toggleWishlist, updateQuantity, removeFromCart, clearCart, isCartOpen, setIsCartOpen, isLoading, setFinishLoading, user, setUser }) => {
+  user: User | null;
+  setUser: (u: User | null) => void;
+  isAuthReady: boolean;
+}> = ({ cart, addToCart, wishlist, toggleWishlist, updateQuantity, removeFromCart, clearCart, isCartOpen, setIsCartOpen, isLoading, setFinishLoading, user, setUser, isAuthReady }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const isLanding = location.pathname === '/';
@@ -49,11 +50,6 @@ const AppContent: React.FC<{
 
   // Real-time Supabase Auth Listener
   useEffect(() => {
-    const checkInitialSession = async () => {
-      const currentUser = await api.getCurrentSessionUser();
-      setUser(currentUser);
-    };
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Olfactory Archive Secure Event:', event);
       if (session?.user) {
@@ -63,8 +59,6 @@ const AppContent: React.FC<{
         setUser(null);
       }
     });
-
-    checkInitialSession();
 
     return () => {
       subscription.unsubscribe();
@@ -119,7 +113,11 @@ const AppContent: React.FC<{
             <Route
               path="/admin"
               element={
-                user && (user.role === 'admin' || user.role === 'owner')
+                !isAuthReady ? (
+                  <div className="min-h-screen bg-[#020617] flex items-center justify-center">
+                    <div className="w-12 h-12 border-t-2 border-blue-500 rounded-full animate-spin"></div>
+                  </div>
+                ) : user && (user.role === 'admin' || user.role === 'owner')
                   ? <AdminDashboard />
                   : <Navigate to="/auth" />
               }
@@ -165,6 +163,7 @@ const App: React.FC = () => {
   });
 
   const [user, setUser] = useState<User | null>(null);
+  const [isAuthReady, setIsAuthReady] = useState(false);
 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(() => {
@@ -180,6 +179,21 @@ const App: React.FC = () => {
   useEffect(() => {
     localStorage.setItem('wishlist', JSON.stringify(wishlist));
   }, [wishlist]);
+
+  // Initial Auth Check
+  useEffect(() => {
+    const initAuth = async () => {
+      try {
+        const currentUser = await api.getCurrentSessionUser();
+        setUser(currentUser);
+      } catch (err) {
+        console.error("Auth init failed:", err);
+      } finally {
+        setIsAuthReady(true);
+      }
+    };
+    initAuth();
+  }, []);
 
   const addToCart = (item: CartItem) => {
     setCart(prev => {
@@ -241,6 +255,7 @@ const App: React.FC = () => {
       setFinishLoading={setFinishLoading}
       user={user}
       setUser={setUser}
+      isAuthReady={isAuthReady}
     />
   );
 };

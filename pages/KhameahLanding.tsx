@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { motion, useScroll, useSpring, AnimatePresence } from 'framer-motion';
-import { Menu, X, Anchor, Box, Zap, Heart, Sparkles } from 'lucide-react';
+import { Menu, X, Anchor, Box, Zap, Heart, Sparkles, Home, Search, BookOpen, User } from 'lucide-react';
 import Lenis from 'lenis';
 
-// Section Components (to be implemented)
+// Section Components
 import SectionMarquee from '../components/khameah/SectionMarquee';
 import SectionHeroStatement from '../components/khameah/SectionHeroStatement';
 import SectionCollectionIntro from '../components/khameah/SectionCollectionIntro';
@@ -15,8 +15,10 @@ import SectionBlessing from '../components/khameah/SectionBlessing';
 import SectionFinalGateway from '../components/khameah/SectionFinalGateway';
 import StructuralGrid from '../components/khameah/StructuralGrid';
 
-import { useNavigate } from 'react-router-dom';
+// Imports cleaned
+import { useNavigate, Link } from 'react-router-dom';
 import { FlowButton } from '../components/ui/flow-button';
+// Removed Tubelight/Spotlight
 
 const KhameahLanding: React.FC = () => {
     const navigate = useNavigate();
@@ -69,7 +71,45 @@ const KhameahLanding: React.FC = () => {
     ];
 
     return (
-        <div className="bg-[#000512] text-white selection:bg-blue-500/30">
+        <div className="bg-[#000512] text-white selection:bg-blue-500/30 relative overflow-hidden">
+
+            {/* Desktop Navigation Restored */}
+            {/* Desktop Navigation - Modern 2026 Edition */}
+            <motion.nav
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.5 }}
+                className="hidden md:flex fixed top-0 left-0 right-0 z-50 px-12 py-8 items-center justify-between max-w-[1400px] mx-auto pointer-events-none"
+            >
+                {/* Brand Identity */}
+                <div className="flex items-center gap-3 pointer-events-auto">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse shadow-[0_0_10px_#3b82f6]" />
+                    <span className="text-xl font-black tracking-[0.4em] uppercase text-white/80 mix-blend-difference">Khamrah</span>
+                </div>
+
+                {/* 2026 Navigation Matrix - Minimal Luxury */}
+                <div className="flex items-center gap-10 pointer-events-auto">
+                    {[
+                        { name: 'Archive', id: 'archive' },
+                        { name: 'Products', id: 'products' },
+                        { name: 'Manifesto', id: 'manifesto' },
+                        { name: 'Why Us', id: 'why-us' },
+                        { name: 'Blessing', id: 'blessing' }
+                    ].map((item, i) => (
+                        <button
+                            key={item.name}
+                            onClick={() => scrollToSection(item.id)}
+                            className="relative group cursor-pointer bg-transparent border-none p-0 focus:outline-none"
+                        >
+                            <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/70 group-hover:text-white transition-colors duration-300">
+                                {item.name}
+                            </span>
+                            <span className="absolute -bottom-2 left-0 w-0 h-px bg-white group-hover:w-full transition-all duration-300 ease-out" />
+                        </button>
+                    ))}
+                </div>
+            </motion.nav>
+
             {/* Background Structural Bones */}
             <StructuralGrid />
 
@@ -79,22 +119,7 @@ const KhameahLanding: React.FC = () => {
                 style={{ scaleX }}
             />
 
-            {/* Desktop Navigation (Top) */}
-            <motion.nav
-                initial={{ y: -100, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                className="hidden md:flex fixed top-8 left-1/2 -translate-x-1/2 z-[90] items-center gap-6 px-8 py-4 rounded-full bg-black/20 backdrop-blur-3xl border border-white/5 shadow-2xl scale-90 md:scale-100"
-            >
-                {['archive', 'products', 'manifesto', 'why-us', 'blessing'].map((item) => (
-                    <button
-                        key={item}
-                        onClick={() => scrollToSection(item)}
-                        className="text-[10px] uppercase tracking-[0.3em] font-black text-white/40 hover:text-blue-400 transition-colors"
-                    >
-                        {item.replace('-', ' ')}
-                    </button>
-                ))}
-            </motion.nav>
+            {/* Desktop Navigation (Replaced by Tubelight Navbar) */}
 
             {/* 2026 Mobile Pulse Navigation (Smartphone-First Refined) */}
             <div className="md:hidden">

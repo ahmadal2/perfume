@@ -39,6 +39,10 @@ export interface Product {
   variants: Variant[];
   isActive: boolean;
   isFeatured?: boolean;
+  rating?: number;
+  reviewCount?: number;
+  salesCount?: number;
+  deliveryTime?: string;
   notes: {
     top: string[];
     middle: string[];
@@ -77,7 +81,12 @@ export interface DashboardStats {
   totalRevenue: number;
   totalOrders: number;
   activeUsers: number;
+  realTimeUsers: number;
+  avgSessionDuration: number;
   lowStockItems: number;
   revenueTrend: string;
   orderTrend: string;
+  topActivePages: { path: string; count: number }[];
+  deviceStats: { mobile: number; desktop: number };
+  geoStats: { country: string; percent: number }[];
 }

@@ -30,7 +30,7 @@ const StructuralGrid: React.FC = () => {
                     <motion.div
                         animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
                         transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                        className="w-2 h-2 bg-blue-500 rounded-full"
+                        className="w-2 h-2 bg-blue-500 rounded-full will-change-transform"
                     />
                 </div>
             </div>
