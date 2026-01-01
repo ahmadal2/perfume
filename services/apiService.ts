@@ -29,7 +29,6 @@ class ApiService {
     if (error) throw error;
     if (!data.user || !data.session) throw new Error('Authentication failed');
 
-    // Fetch from public.users table
     const { data: userData } = await supabase
       .from('users')
       .select('*')
@@ -97,10 +96,10 @@ class ApiService {
     const { data: { user }, error } = await supabase.auth.getUser();
     if (error || !user) return null;
 
-    // Fetch user data from public.users table
+    // Optimized: Fetch only essential columns
     const { data: userData, error: userError } = await supabase
       .from('users')
-      .select('*')
+      .select('id, email, full_name, role, avatar_url')
       .eq('id', user.id)
       .single();
 
@@ -245,10 +244,24 @@ class ApiService {
   }
 
   async getSales(): Promise<Sale[]> {
+    const CACHE_KEY = 'khamrah_sales_cache';
+    const CACHE_DURATION = 3 * 60 * 1000; // 3 minutes
+
+    // Check cache
+    try {
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (cached) {
+        const { data, timestamp } = JSON.parse(cached);
+        if (Date.now() - timestamp < CACHE_DURATION) {
+          return data;
+        }
+      }
+    } catch (e) { }
+
     const { data, error } = await supabase.from('sales').select('*').order('created_at', { ascending: false });
     if (error) throw error;
 
-    return data.map(s => ({
+    const sales = data.map(s => ({
       id: s.id,
       name: s.name,
       discountType: s.discount_type as any,
@@ -260,6 +273,16 @@ class ApiService {
       appliesTo: s.applies_to as any,
       targetIds: s.target_ids
     }));
+
+    // Cache the result
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify({
+        data: sales,
+        timestamp: Date.now()
+      }));
+    } catch (e) { }
+
+    return sales;
   }
 
   // --- Ratings & Reviews ---
@@ -417,8 +440,31 @@ class ApiService {
   }
 
   async getCategories(): Promise<{ id: string; name: string }[]> {
+    const CACHE_KEY = 'khamrah_categories_cache';
+    const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
+
+    // Check cache
+    try {
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (cached) {
+        const { data, timestamp } = JSON.parse(cached);
+        if (Date.now() - timestamp < CACHE_DURATION) {
+          return data;
+        }
+      }
+    } catch (e) { }
+
     const { data, error } = await supabase.from('categories').select('id, name').eq('is_active', true);
     if (error) throw error;
+
+    // Cache the result
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify({
+        data: data || [],
+        timestamp: Date.now()
+      }));
+    } catch (e) { }
+
     return data || [];
   }
 
@@ -606,6 +652,25 @@ class ApiService {
   async deleteSale(id: string): Promise<void> {
     const { error } = await supabase.from('sales').delete().eq('id', id);
     if (error) throw error;
+    // Clear sales cache
+    this.clearCache('sales');
+  }
+
+  // Cache Management
+  clearCache(type?: 'products' | 'categories' | 'sales' | 'all'): void {
+    try {
+      if (!type || type === 'all') {
+        localStorage.removeItem('khamrah_products_cache');
+        localStorage.removeItem('khamrah_categories_cache');
+        localStorage.removeItem('khamrah_sales_cache');
+        console.log('🗑️ All caches cleared');
+      } else {
+        localStorage.removeItem(`khamrah_${type}_cache`);
+        console.log(`🗑️ ${type} cache cleared`);
+      }
+    } catch (e) {
+      console.warn('Cache clear failed:', e);
+    }
   }
 }
 

@@ -94,7 +94,7 @@ const SectionHeroStatement: React.FC = () => {
                 </motion.p>
 
                 <motion.div variants={itemVariants} className="pt-6 md:pt-8 flex justify-center">
-                    <Link to="/catalog">
+                    <Link to="/products">
                         <button className="w-[90%] sm:w-auto px-10 md:px-12 py-5 md:py-5 bg-blue-600 text-white font-bold uppercase tracking-[0.2em] md:tracking-[0.3em] text-[10px] md:text-xs hover:bg-blue-500 transition-all rounded-full shadow-[0_0_30px_rgba(37,99,235,0.2)] active:scale-95">
                             Discover Our Collections
                         </button>

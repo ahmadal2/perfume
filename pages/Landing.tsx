@@ -44,7 +44,7 @@ const Landing: React.FC<LandingProps> = ({ onAddToCart }) => {
 
     const navItems = [
         { name: 'Home', url: '/', icon: Home },
-        { name: 'Catalogue', url: '/catalog', icon: Search },
+        { name: 'Products', url: '/products', icon: Search },
         { name: 'Story', url: '/contact', icon: BookOpen },
         { name: 'Login', url: '/auth', icon: User }
     ];

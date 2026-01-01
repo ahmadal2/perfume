@@ -26,8 +26,14 @@ const KhameahLanding: React.FC = () => {
     useEffect(() => {
         window.scrollTo(0, 0);
         const lenis = new Lenis({
-            duration: 1.2,
+            duration: 0.8, // Faster, smoother
             easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            orientation: 'vertical',
+            gestureOrientation: 'vertical',
+            smoothWheel: true,
+            wheelMultiplier: 1,
+            touchMultiplier: 2,
+            infinite: false,
         });
 
         function raf(time: number) {
@@ -44,8 +50,8 @@ const KhameahLanding: React.FC = () => {
 
     const { scrollYProgress } = useScroll();
     const scaleX = useSpring(scrollYProgress, {
-        stiffness: 100,
-        damping: 30,
+        stiffness: 150,
+        damping: 35,
         restDelta: 0.001
     });
 
@@ -63,11 +69,14 @@ const KhameahLanding: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const menuItems = [
-        { id: 'archive', label: 'Archive', icon: Box },
-        { id: 'products', label: 'Essences', icon: Zap },
-        { id: 'manifesto', label: 'Vision', icon: Anchor },
-        { id: 'why-us', label: 'Purity', icon: Heart },
-        { id: 'blessing', label: 'Grace', icon: Sparkles },
+        { id: 'home', label: 'Home', icon: Home, action: () => scrollToSection('hero') },
+        { id: 'products-page', label: 'Products', icon: Search, action: () => navigate('/products') },
+        { id: 'archive', label: 'Archive', icon: Box, action: () => scrollToSection('archive') },
+        { id: 'manifesto', label: 'Vision', icon: Anchor, action: () => scrollToSection('manifesto') },
+        { id: 'why-us', label: 'Purity', icon: Heart, action: () => scrollToSection('why-us') },
+        { id: 'blessing', label: 'Grace', icon: Sparkles, action: () => scrollToSection('blessing') },
+        { id: 'login', label: 'Sign In', icon: User, action: () => navigate('/auth') },
+        { id: 'admin', label: 'Admin', icon: BookOpen, action: () => navigate('/admin') },
     ];
 
     return (
@@ -78,7 +87,7 @@ const KhameahLanding: React.FC = () => {
             <motion.nav
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.5 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
                 className="hidden md:flex fixed top-0 left-0 right-0 z-50 px-12 py-8 items-center justify-between max-w-[1400px] mx-auto pointer-events-none"
             >
                 {/* Brand Identity */}
@@ -171,7 +180,7 @@ const KhameahLanding: React.FC = () => {
                                 animate={{ scale: 1, opacity: 1, y: 0 }}
                                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
                                 transition={{ type: "spring", damping: 25 }}
-                                className="w-full max-w-[280px] bg-[#0a0a0a]/90 border border-white/10 rounded-[2.5rem] p-8 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative overflow-hidden"
+                                className="w-full max-w-[320px] max-h-[85vh] overflow-y-auto bg-[#0a0a0a]/95 border border-white/10 rounded-[2rem] p-6 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative"
                                 onClick={(e) => e.stopPropagation()}
                             >
                                 {/* Header / Index */}
@@ -181,28 +190,33 @@ const KhameahLanding: React.FC = () => {
                                 </div>
 
                                 {/* Compact Options */}
-                                <div className="space-y-4">
-                                    {menuItems.map((item, idx) => (
-                                        <motion.button
-                                            key={item.id}
-                                            initial={{ opacity: 0, x: -10 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: idx * 0.05 }}
-                                            onClick={() => {
-                                                scrollToSection(item.id);
-                                                setIsMenuOpen(false);
-                                            }}
-                                            className="w-full group flex items-center justify-between py-4 px-2 rounded-xl border border-transparent hover:bg-white/[0.03] hover:border-white/5 transition-all text-left"
-                                        >
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-2 h-2 rounded-full bg-blue-500/20 group-hover:bg-blue-500 group-hover:scale-125 transition-all" />
-                                                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40 group-hover:text-white transition-colors">
-                                                    {item.label}
-                                                </span>
-                                            </div>
-                                            <span className="text-[8px] font-mono text-white/10 italic">0{idx + 1}</span>
-                                        </motion.button>
-                                    ))}
+                                <div className="space-y-2">
+                                    {menuItems.map((item, idx) => {
+                                        const Icon = item.icon;
+                                        return (
+                                            <motion.button
+                                                key={item.id}
+                                                initial={{ opacity: 0, x: -10 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: idx * 0.05 }}
+                                                onClick={() => {
+                                                    item.action();
+                                                    setIsMenuOpen(false);
+                                                }}
+                                                className="w-full group flex items-center justify-between py-3 px-3 rounded-xl border border-transparent hover:bg-white/[0.03] hover:border-white/5 transition-all text-left"
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-lg bg-blue-500/10 group-hover:bg-blue-500/20 flex items-center justify-center transition-all">
+                                                        <Icon className="w-4 h-4 text-blue-400/60 group-hover:text-blue-400 transition-colors" />
+                                                    </div>
+                                                    <span className="text-xs font-bold uppercase tracking-[0.15em] text-white/50 group-hover:text-white transition-colors">
+                                                        {item.label}
+                                                    </span>
+                                                </div>
+                                                <span className="text-[8px] font-mono text-white/10 italic">0{idx + 1}</span>
+                                            </motion.button>
+                                        );
+                                    })}
                                 </div>
 
                                 {/* Bottom Branding */}

@@ -44,7 +44,7 @@ export const FormInput: React.FC<FormInputProps> = ({ icon, type, placeholder, v
                 value={value}
                 onChange={onChange}
                 required={required}
-                className="w-full pl-10 pr-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/60 focus:outline-none focus:border-purple-500/50 transition-colors"
+                className="w-full pl-10 pr-3 py-3 sm:py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm sm:text-base placeholder-white/60 focus:outline-none focus:border-purple-500/50 transition-colors"
             />
         </div>
     );
@@ -130,11 +130,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
     };
 
     return (
-        <div className="p-8 rounded-2xl backdrop-blur-sm bg-black/50 border border-white/10 relative z-20">
-            <div className="mb-8 text-center">
-                <h2 className="text-3xl font-bold mb-2 relative group">
+        <div className="p-6 sm:p-8 rounded-2xl backdrop-blur-sm bg-black/50 border border-white/10 relative z-20 w-full max-w-md mx-auto">
+            <div className="mb-6 sm:mb-8 text-center">
+                <h2 className="text-2xl sm:text-3xl font-bold mb-2 relative group">
                     <span className="absolute -inset-1 bg-gradient-to-r from-purple-600/30 via-pink-500/30 to-blue-500/30 blur-xl opacity-75 group-hover:opacity-100 transition-all duration-500 animate-pulse"></span>
-                    <span className="relative inline-block text-3xl font-bold mb-2 text-white">
+                    <span className="relative inline-block text-2xl sm:text-3xl font-bold mb-2 text-white">
                         NexusGate
                     </span>
                     <span className="absolute -inset-0.5 bg-gradient-to-r from-purple-500/20 to-pink-500/20 blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300"></span>
@@ -142,7 +142,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
                 <div className="text-white/80 flex flex-col items-center space-y-1">
                     <span className="relative group cursor-default">
                         <span className="absolute -inset-1 bg-gradient-to-r from-purple-600/20 to-pink-600/20 blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500"></span>
-                        <span className="relative inline-block animate-pulse">Your gaming universe awaits</span>
+                        <span className="relative inline-block animate-pulse text-sm sm:text-base">Your gaming universe awaits</span>
                     </span>
                     <span className="text-xs text-white/50 animate-pulse">
                         [Press Enter to join the adventure]
@@ -155,7 +155,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
                 </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
                 <FormInput
                     icon={<Mail className="text-white/60" size={18} />}
                     type="email"
@@ -176,7 +176,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
                     />
                     <button
                         type="button"
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white focus:outline-none transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white focus:outline-none transition-colors p-2"
                         onClick={() => setShowPassword(!showPassword)}
                         aria-label={showPassword ? "Hide password" : "Show password"}
                     >
@@ -184,7 +184,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
                     </button>
                 </div>
 
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
                     <div className="flex items-center space-x-2">
                         <div onClick={() => setRemember(!remember)} className="cursor-pointer">
                             <ToggleSwitch
@@ -209,7 +209,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className={`w-full py-3 rounded-lg ${isSuccess
+                    className={`w-full py-3.5 sm:py-3 rounded-lg text-sm sm:text-base ${isSuccess
                         ? 'animate-success'
                         : 'bg-purple-600 hover:bg-purple-700'
                         } text-white font-medium transition-all duration-200 ease-in-out transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40`}

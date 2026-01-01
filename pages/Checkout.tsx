@@ -100,7 +100,7 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onClearCart }) => {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-6">
         <h2 className="text-3xl serif italic text-white">Your bag is empty</h2>
-        <Link to="/catalog">
+        <Link to="/products">
           <FlowButton text="Discover Our Scents" />
         </Link>
       </div>
@@ -113,7 +113,7 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onClearCart }) => {
         {/* Form */}
         <div className="space-y-16">
           <div className="flex items-center gap-6 text-white group cursor-default">
-            <Link to="/catalog" className="text-blue-500/40 hover:text-blue-400 transition-colors p-3 rounded-full border border-blue-500/10 bg-blue-500/5 backdrop-blur-md">
+            <Link to="/products" className="text-blue-500/40 hover:text-blue-400 transition-colors p-3 rounded-full border border-blue-500/10 bg-blue-500/5 backdrop-blur-md">
               <ArrowLeft size={20} />
             </Link>
             <div className="space-y-2">

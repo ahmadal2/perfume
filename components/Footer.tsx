@@ -22,10 +22,10 @@ const Footer: React.FC = () => {
     {
       title: "Collections",
       links: [
-        { label: "The Original", href: "/catalog" },
-        { label: "Special Reserve", href: "/catalog" },
-        { label: "Legacy Archive", href: "/catalog" },
-        { label: "Limited Editions", href: "/catalog" },
+        { label: "The Original", href: "/products" },
+        { label: "Special Reserve", href: "/products" },
+        { label: "Legacy Archive", href: "/products" },
+        { label: "Limited Editions", href: "/products" },
       ],
     },
     {

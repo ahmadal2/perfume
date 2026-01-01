@@ -128,7 +128,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, items, onUpdat
                   <div className="space-y-2">
                     <p className="text-white/40 text-xs uppercase tracking-[0.3em] font-bold">{txt.empty}</p>
                     <Link
-                      to="/catalog"
+                      to="/products"
                       onClick={onClose}
                       className="inline-block text-blue-500 text-[9px] uppercase tracking-[0.5em] font-black border-b border-blue-500/20 pb-1 hover:border-blue-500 transition-all"
                     >

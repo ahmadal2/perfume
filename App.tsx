@@ -7,7 +7,7 @@ import CartDrawer from './components/CartDrawer';
 import Home from './pages/Home';
 import Landing from './pages/Landing';
 import KhameahLanding from './pages/KhameahLanding';
-import Catalog from './pages/Catalog';
+import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
 import Checkout from './pages/Checkout';
 import Contact from './pages/Contact';
@@ -73,7 +73,7 @@ const AppContent: React.FC<{
 
   return (
     <div className="flex flex-col min-h-screen">
-      <CustomCursor />
+      {/* <CustomCursor /> */}
       <AnimatePresence>
         {isLoading && (
           <LoadingPage onComplete={() => {
@@ -97,12 +97,13 @@ const AppContent: React.FC<{
             <Route path="/" element={<KhameahLanding />} />
             <Route path="/home" element={<Home />} />
             <Route
-              path="/catalog"
+              path="/products"
               element={
-                <Catalog
+                <Products
                   onAddToCart={addToCart}
                   wishlist={wishlist}
                   onToggleWishlist={toggleWishlist}
+                  user={user}
                 />
               }
             />

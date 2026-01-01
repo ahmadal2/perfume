@@ -169,7 +169,7 @@ Please confirm availability.`;
         <nav className="flex items-center gap-2 text-[10px] uppercase tracking-[0.4em] text-white/30 mb-20">
           <Link to="/" className="hover:text-white transition-colors">Home</Link>
           <ChevronRight size={10} />
-          <Link to="/catalog" className="hover:text-white transition-colors">Archive</Link>
+          <Link to="/products" className="hover:text-white transition-colors">Archive</Link>
           <ChevronRight size={10} />
           <span className="text-white">{product.name}</span>
         </nav>

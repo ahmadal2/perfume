@@ -39,7 +39,7 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount, toggleCart, user, onLogout }
 
   const navLinks = [
     { name: 'Home', path: '/home' },
-    { name: 'Catalogue', path: '/catalog' },
+    { name: 'Products', path: '/products' },
     { name: 'Story', path: '/contact' },
   ];
 
@@ -214,22 +214,49 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount, toggleCart, user, onLogout }
                 <div className="h-px w-full bg-white/5" />
                 <div className="flex flex-col gap-8">
                   {!user ? (
-                    <Link
-                      to="/auth"
-                      className="text-[10px] font-black uppercase tracking-[0.4em] text-white bg-blue-600 px-10 py-5 rounded-full text-center hover:bg-blue-500 transition-all shadow-[0_0_40px_rgba(59,130,246,0.3)] w-fit"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Unlock Archive
-                    </Link>
+                    <div className="space-y-4">
+                      <Link
+                        to="/auth"
+                        className="block text-[11px] font-black uppercase tracking-[0.4em] text-white bg-blue-600 px-10 py-5 rounded-full text-center hover:bg-blue-500 transition-all shadow-[0_0_40px_rgba(59,130,246,0.3)]"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Sign In / Register
+                      </Link>
+                      <p className="text-[8px] text-white/30 text-center uppercase tracking-widest">
+                        Unlock exclusive access
+                      </p>
+                    </div>
                   ) : (
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500">
-                        <UserIcon size={18} />
+                    <div className="space-y-6">
+                      <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
+                        <div className="w-12 h-12 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500">
+                          <UserIcon size={18} />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-[8px] font-black uppercase tracking-widest text-white/40">Secure Session</p>
+                          <p className="text-xs font-black uppercase tracking-widest text-white truncate">{user.fullName}</p>
+                          <p className="text-[8px] uppercase tracking-widest text-blue-500 font-black mt-0.5">{user.role}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-[8px] font-black uppercase tracking-widest text-white/40">Secure Session</p>
-                        <p className="text-xs font-black uppercase tracking-widest text-white">{user.fullName}</p>
-                      </div>
+
+                      {(user.role === 'admin' || user.role === 'owner') && (
+                        <Link
+                          to="/admin"
+                          onClick={() => setIsMenuOpen(false)}
+                          className="flex items-center justify-center gap-2 w-full p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-[10px] uppercase tracking-widest font-black text-blue-400 hover:bg-blue-500/20 transition-all"
+                        >
+                          <LayoutDashboard size={14} />
+                          Admin Dashboard
+                        </Link>
+                      )}
+
+                      <button
+                        onClick={handleLogoutClick}
+                        className="flex items-center justify-center gap-2 w-full p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-[10px] uppercase tracking-widest font-black text-red-400 hover:bg-red-500/20 transition-all"
+                      >
+                        <LogOut size={14} />
+                        Sign Out
+                      </button>
                     </div>
                   )}
 

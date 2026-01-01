@@ -54,7 +54,7 @@ const SectionFinalGateway: React.FC = () => {
                 </div>
 
                 <div
-                    onClick={() => navigate('/catalog')}
+                    onClick={() => navigate('/products')}
                     className="group relative cursor-pointer"
                 >
                     {/* Pulsing Outer Ring */}

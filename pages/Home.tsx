@@ -35,7 +35,7 @@ const Home: React.FC = () => {
               <p className="text-white/40 text-sm leading-loose tracking-[0.1em] uppercase font-light">
                 An exploration of rare Extraits and aromatic masterpieces. Each scent in our boutique is a legacy preserved in deep sapphire essence.
               </p>
-              <Link to="/catalog" className="inline-block w-full sm:w-auto">
+              <Link to="/products" className="inline-block w-full sm:w-auto">
                 <FlowButton text="Explore The Absolute Vault" variant="blue" className="h-20 px-12 shadow-[0_0_80px_rgba(59,130,246,0.3)]" />
               </Link>
             </div>
@@ -92,8 +92,8 @@ const Home: React.FC = () => {
             <p className="text-white/40 text-sm leading-loose uppercase tracking-[0.3em] font-light">
               Our full collection of olfactory signatures awaits your discovery.
             </p>
-            <Link to="/catalog">
-              <FlowButton text="View Full Catalog" variant="blue" className="h-20 w-full max-w-md mx-auto" />
+            <Link to="/products">
+              <FlowButton text="View Products" variant="blue" className="h-20 w-full max-w-md mx-auto" />
             </Link>
           </div>
         </div>

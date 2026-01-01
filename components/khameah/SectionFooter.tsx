@@ -34,7 +34,7 @@ const SectionFooter: React.FC = () => {
                         <h4 className="text-white text-[10px] font-black uppercase tracking-[0.5em]">Main Menu</h4>
                         <ul className="space-y-4 text-white/40 text-[10px] font-mono uppercase tracking-widest">
                             <li><Link to="/home" className="hover:text-blue-500 transition-colors">Homepage</Link></li>
-                            <li><Link to="/catalog" className="hover:text-blue-500 transition-colors">Fragrance Catalog</Link></li>
+                            <li><Link to="/products" className="hover:text-blue-500 transition-colors">Fragrance Products</Link></li>
                             <li><Link to="/blueprint" className="hover:text-blue-500 transition-colors">Our Blueprint</Link></li>
                         </ul>
                     </div>
