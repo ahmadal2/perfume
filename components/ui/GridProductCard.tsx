@@ -107,17 +107,10 @@ const GridProductCard: React.FC<GridProductCardProps> = ({ product, onAddToCart,
                                 className="absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12"
                             />
 
-                            {/* Text Content */}
-                            <div className="relative flex items-center gap-1.5">
-                                <motion.span
-                                    animate={{ rotate: [0, 360] }}
-                                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                                    className="text-[10px] sm:text-xs"
-                                >
-                                    ✨
-                                </motion.span>
-                                <span className="text-white text-[9px] sm:text-[11px] font-black uppercase tracking-wider drop-shadow-lg">
-                                    Sale {savingsPercent}%
+                            {/* Text Content - Clean Design Without Emoji */}
+                            <div className="relative flex items-center justify-center">
+                                <span className="text-white text-[10px] sm:text-xs font-black uppercase tracking-wider drop-shadow-lg">
+                                    {savingsPercent}% OFF
                                 </span>
                             </div>
                         </div>

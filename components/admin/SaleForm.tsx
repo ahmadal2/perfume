@@ -20,7 +20,7 @@ export const SaleForm: React.FC<SaleFormProps> = ({ initialData, onClose, onSucc
         discountValue: 0,
         isActive: true,
         isPermanent: false,
-        appliesTo: 'all',
+        appliesTo: 'specific_products', // Now always specific products
         targetIds: [],
         startDate: '',
         endDate: ''
@@ -49,24 +49,40 @@ export const SaleForm: React.FC<SaleFormProps> = ({ initialData, onClose, onSucc
         e.preventDefault();
         setLoading(true);
 
+        // Validate that at least one product is selected
+        if (formData.appliesTo === 'specific_products' && (!formData.targetIds || formData.targetIds.length === 0)) {
+            alert('Please select at least one product for this sale');
+            setLoading(false);
+            return;
+        }
+
         // Fix: Ensure empty strings for dates are sent as null to Supabase
         const submissionData = {
             ...formData,
             startDate: formData.startDate || null,
-            endDate: formData.endDate || null
+            endDate: formData.endDate || null,
+            // Ensure appliesTo is always 'specific_products' now
+            appliesTo: 'specific_products' as const
         };
+
+        console.log('💾 Submitting sale data:', submissionData);
 
         try {
             if (initialData && initialData.id) {
+                console.log('📝 Updating existing sale:', initialData.id);
                 await api.updateSale(initialData.id, submissionData);
+                console.log('✅ Sale updated successfully');
             } else {
+                console.log('➕ Creating new sale');
                 await api.createSale(submissionData as any);
+                console.log('✅ Sale created successfully');
             }
             onSuccess();
             onClose();
         } catch (err) {
-            console.error(err);
-            alert(`Failed to save sale: ${(err as any).message || 'Unknown error'}`);
+            console.error('❌ Failed to save sale:', err);
+            const errorMessage = (err as any).message || 'Unknown error';
+            alert(`Failed to save sale: ${errorMessage}\n\nPlease check the console for details.`);
         } finally {
             setLoading(false);
         }
@@ -158,10 +174,11 @@ export const SaleForm: React.FC<SaleFormProps> = ({ initialData, onClose, onSucc
                                     onChange={e => updateField('appliesTo', e.target.value)}
                                     className="w-full bg-white/5 border border-white/10 rounded-2xl p-6 text-white text-[10px] uppercase tracking-widest focus:outline-none [&>option]:text-black"
                                 >
-                                    <option value="all">Universal Archives</option>
-                                    <option value="specific_products">Selectively Marked</option>
-                                    <option value="specific_categories">Category Subset</option>
+                                    <option value="specific_products">Selectively Marked Products</option>
                                 </select>
+                                <p className="text-[8px] text-white/30 uppercase tracking-wider leading-relaxed">
+                                    Sales are now product-specific only for better control
+                                </p>
                             </div>
 
                             <div className="space-y-4 pt-4 border-t border-white/5">
