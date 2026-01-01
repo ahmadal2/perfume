@@ -13,7 +13,7 @@ interface CountUpProps {
     gradient?: string;
 }
 
-const CountUp: React.FC<CountUpProps> = ({ to, label, suffix = "", duration = 2, icon, gradient = "from-blue-600 to-purple-600" }) => {
+const CountUp: React.FC<CountUpProps> = ({ to, label, suffix = "", duration = 2, icon, gradient = "from-blue-600 to-cyan-500" }) => {
     const count = useMotionValue(0);
     const [displayValue, setDisplayValue] = useState("0");
 
@@ -109,7 +109,7 @@ const SectionStats: React.FC = () => {
             {/* Background Effects */}
             <div className="absolute inset-0 z-0">
                 <div className="absolute top-1/2 left-1/4 w-96 h-96 bg-blue-600/10 blur-[120px] rounded-full" />
-                <div className="absolute bottom-1/2 right-1/4 w-96 h-96 bg-purple-600/10 blur-[120px] rounded-full" />
+                <div className="absolute bottom-1/2 right-1/4 w-96 h-96 bg-cyan-500/10 blur-[120px] rounded-full" />
             </div>
 
             {/* Floating Particles */}
@@ -144,12 +144,12 @@ const SectionStats: React.FC = () => {
                     className="text-center mb-12 sm:mb-16 md:mb-20"
                 >
                     <div className="inline-block px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-4 sm:mb-6">
-                        <span className="text-[8px] sm:text-[10px] text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 font-black uppercase tracking-widest">
+                        <span className="text-[8px] sm:text-[10px] text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 font-black uppercase tracking-widest">
                             Our Impact
                         </span>
                     </div>
                     <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight">
-                        Crafting Excellence <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500">Worldwide</span>
+                        Crafting Excellence <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-500">Worldwide</span>
                     </h2>
                 </motion.div>
 
@@ -159,7 +159,7 @@ const SectionStats: React.FC = () => {
                         to={15}
                         label="Countries We Ship To"
                         icon={<TrendingUp className="w-6 h-6 sm:w-7 sm:h-7 text-white" />}
-                        gradient="from-purple-600 to-pink-600"
+                        gradient="from-blue-600 to-blue-500"
                     />
                     <CountUp
                         to={stats?.activeUsers || 1200}
@@ -167,14 +167,14 @@ const SectionStats: React.FC = () => {
                         suffix="+"
                         duration={2.5}
                         icon={<Users className="w-6 h-6 sm:w-7 sm:h-7 text-white" />}
-                        gradient="from-pink-600 to-orange-600"
+                        gradient="from-blue-500 to-cyan-500"
                     />
                     <CountUp
                         to={100}
                         label="Unique Scents"
                         suffix="%"
                         icon={<Sparkles className="w-6 h-6 sm:w-7 sm:h-7 text-white" />}
-                        gradient="from-orange-600 to-purple-600"
+                        gradient="from-cyan-500 to-blue-600"
                     />
                 </div>
             </div>
