@@ -134,7 +134,7 @@ const AppContent: React.FC<{
                 />
               }
             />
-            <Route path="/checkout" element={<Checkout items={cart} onClearCart={clearCart} />} />
+            <Route path="/checkout" element={<Checkout items={cart} onClearCart={clearCart} onUpdateQuantity={updateQuantity} onRemoveItem={removeFromCart} />} />
           </Routes>
         )}
       </main>

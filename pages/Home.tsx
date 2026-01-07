@@ -4,8 +4,15 @@ import { VerticalImageStack } from '../components/ui/vertical-image-stack';
 import { FlowButton } from '../components/ui/flow-button';
 import { TextEffect } from '../components/ui/text-effect';
 import { FloatingPerfume } from '../components/ui/floating-perfume';
+import { PerfumeHero } from '../components/PerfumeHero';
 
 const Home: React.FC = () => {
+  const bottles = [
+    { id: 1, color: '#3b82f6', liquidColor: '#1e3a8a', size: 100, left: '15%', speed: 1.2 },
+    { id: 2, color: '#10b981', liquidColor: '#064e3b', size: 120, left: '40%', speed: 0.8 },
+    { id: 3, color: '#f59e0b', liquidColor: '#78350f', size: 90, left: '70%', speed: 1.5 },
+  ];
+
   return (
     <div className="pt-32 pb-20 space-y-40 bg-[#020617] overflow-x-hidden">
       {/* Featured Header */}
@@ -43,7 +50,7 @@ const Home: React.FC = () => {
 
           {/* 3D Visual Centerpiece */}
           <div className="relative order-first lg:order-last">
-            <FloatingPerfume />
+            <PerfumeHero bottles={bottles} className="bg-blue-900/5 backdrop-blur-sm border border-white/5" />
           </div>
         </div>
       </section>

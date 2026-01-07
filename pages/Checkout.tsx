@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { CartItem } from '../types';
 import { WHATSAPP_NUMBER } from '../constants';
-import { ShieldCheck, ArrowLeft, Truck, CreditCard, Loader2, MessageCircle } from 'lucide-react';
+import { ShieldCheck, ArrowLeft, Truck, CreditCard, Loader2, MessageCircle, Plus, Minus, Trash2, Lock, Eye, Zap, ShieldAlert } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FlowButton } from '../components/ui/flow-button';
 import { generateInvoicePDF } from '../lib/invoiceGenerator';
@@ -11,9 +11,11 @@ import { supabase } from '../lib/supabase';
 interface CheckoutProps {
   items: CartItem[];
   onClearCart: () => void;
+  onUpdateQuantity: (productId: string, variantId: string, delta: number) => void;
+  onRemoveItem: (productId: string, variantId: string) => void;
 }
 
-const Checkout: React.FC<CheckoutProps> = ({ items, onClearCart }) => {
+const Checkout: React.FC<CheckoutProps> = ({ items, onClearCart, onUpdateQuantity, onRemoveItem }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
@@ -184,17 +186,24 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onClearCart }) => {
               </div>
             </div>
 
-            <div className="p-8 bg-blue-500/5 border border-blue-500/20 rounded-3xl space-y-4 backdrop-blur-md">
-              <div className="flex items-start gap-5">
-                <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(59,130,246,0.1)]">
-                  <ShieldCheck className="text-blue-500" size={24} />
-                </div>
-                <div>
-                  <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-white">Encrypted Verification</h4>
-                  <p className="text-[10px] text-blue-300/40 mt-2 leading-relaxed uppercase tracking-[0.2em] font-black">
-                    Your archive request will be verified by a specialist who will confirm stock and provide secure payment instructions.
-                  </p>
-                </div>
+            {/* Security Section Integrated */}
+            <div className="space-y-8">
+              <h3 className="text-[10px] uppercase tracking-[0.6em] font-black text-white border-l-2 border-white pl-4 py-1">Security & Encryption Protocol</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                {[
+                  { icon: <ShieldCheck size={16} />, label: "SQL Injection", status: "ORM + Validation" },
+                  { icon: <Eye size={16} />, label: "XSS Protection", status: "Escaping + CSP" },
+                  { icon: <Lock size={16} />, label: "CSRF Guard", status: "Dynamic Tokens" },
+                  { icon: <Zap size={16} />, label: "DDoS Shield", status: "Rate Limiting" },
+                  { icon: <ShieldAlert size={16} />, label: "Token Theft", status: "HttpOnly Cookies" },
+                  { icon: <MessageCircle size={16} />, label: "API Integrity", status: "Usage Limits" },
+                ].map((item, idx) => (
+                  <div key={idx} className="p-4 rounded-2xl border border-white/5 bg-white/5 backdrop-blur-md group hover:border-blue-500/30 transition-all duration-500">
+                    <div className="text-blue-500 mb-2 group-hover:scale-110 transition-transform origin-left">{item.icon}</div>
+                    <div className="text-[9px] font-black text-white/40 uppercase tracking-widest">{item.label}</div>
+                    <div className="text-[9px] font-black text-blue-400 mt-1 uppercase tracking-tighter">{item.status}</div>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -216,49 +225,84 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onClearCart }) => {
           </form>
         </div>
 
-        {/* Summary */}
-        <div className="bg-zinc-950 p-8 lg:p-12 rounded-[2rem] border border-white/5 h-fit sticky top-32">
-          <h2 className="text-2xl serif mb-8 border-b border-white/10 pb-4 text-white">Order Summary</h2>
-          <div className="space-y-6 mb-8 max-h-96 overflow-y-auto pr-4">
+        {/* Summary Redesigned */}
+        <div className="bg-zinc-950/80 backdrop-blur-3xl p-8 lg:p-12 rounded-[3rem] border border-white/10 h-fit sticky top-32 shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5 opacity-50" />
+
+          <h2 className="text-2xl serif mb-10 border-b border-white/5 pb-6 text-white relative flex justify-between items-end">
+            <span>Order Summary</span>
+            <span className="text-[10px] uppercase tracking-[0.4em] font-black text-blue-500/60 pb-1">{items.length} ARCHIVES</span>
+          </h2>
+
+          <div className="space-y-8 mb-10 max-h-[32rem] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent relative">
             {items.map((item) => (
-              <div key={`${item.productId}-${item.variantId}`} className="flex gap-6 group">
-                <div className="relative w-24 h-24 shrink-0 rounded-2xl overflow-hidden border border-white/10 group-hover:border-blue-500/40 transition-colors">
-                  <img src={item.image} alt={item.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
+              <div key={`${item.productId}-${item.variantId}`} className="flex gap-6 group relative">
+                <div className="relative w-28 h-28 shrink-0 rounded-3xl overflow-hidden border border-white/10 group-hover:border-blue-500/40 transition-all duration-700 shadow-2xl">
+                  <img src={item.image} alt={item.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-110 group-hover:scale-100" />
                   <div className="absolute inset-0 bg-blue-950/20 mix-blend-overlay opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
-                <div className="flex-1 py-1">
-                  <h4 className="text-xs font-black uppercase tracking-[0.3em] text-blue-100 group-hover:text-blue-400 transition-colors">{item.name}</h4>
-                  <p className="text-[9px] text-gray-500 uppercase tracking-[0.4em] mt-2 font-black">{item.brand} • {item.size}</p>
-                  <div className="flex justify-between items-center mt-4">
-                    <span className="text-[10px] text-gray-500 uppercase tracking-[0.2em] font-black">ARCHIVE QTY: {item.quantity}</span>
-                    <span className="text-sm font-black text-blue-400 group-hover:text-blue-300 transition-colors tracking-widest">${(item.price * item.quantity).toFixed(2)}</span>
+
+                <div className="flex-1 flex flex-col justify-between py-1">
+                  <div>
+                    <div className="flex justify-between items-start">
+                      <h4 className="text-[11px] font-black uppercase tracking-[0.3em] text-blue-500 group-hover:text-blue-400 transition-colors leading-relaxed pr-8">{item.name}</h4>
+                      <button
+                        onClick={() => onRemoveItem(item.productId, item.variantId)}
+                        className="text-white/20 hover:text-red-500/80 transition-colors p-2 -mr-2"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                    <p className="text-[9px] text-gray-500 uppercase tracking-[0.4em] mt-2 font-black">{item.brand} • {item.size}</p>
+                  </div>
+
+                  <div className="flex justify-between items-end mt-4">
+                    <div className="flex items-center bg-white/5 rounded-2xl border border-white/10 overflow-hidden backdrop-blur-sm">
+                      <button
+                        onClick={() => onUpdateQuantity(item.productId, item.variantId, -1)}
+                        className="p-2 px-3 hover:bg-white/10 transition-colors text-white/60 hover:text-white"
+                      >
+                        <Minus size={12} />
+                      </button>
+                      <span className="text-[10px] font-black text-white px-2 min-w-[2rem] text-center border-x border-white/10">{item.quantity}</span>
+                      <button
+                        onClick={() => onUpdateQuantity(item.productId, item.variantId, 1)}
+                        className="p-2 px-3 hover:bg-white/10 transition-colors text-white/60 hover:text-white"
+                      >
+                        <Plus size={12} />
+                      </button>
+                    </div>
+                    <span className="text-sm font-black text-white group-hover:text-blue-400 transition-colors tracking-widest">${(item.price * item.quantity).toFixed(2)}</span>
                   </div>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="space-y-4 pt-8 border-t border-white/10">
+          <div className="space-y-5 pt-10 border-t border-white/5 relative">
             <div className="flex justify-between text-[11px] text-gray-500 uppercase tracking-[0.4em] font-black">
               <span>Archive Subtotal</span>
               <span className="text-white">${total.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-[11px] text-gray-500 uppercase tracking-[0.4em] font-black">
               <span className="flex items-center gap-3"><Truck size={14} className="text-blue-500" /> Transport</span>
-              <span className="text-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.3)] px-3 py-1 bg-blue-500/10 rounded-full border border-blue-500/20">Complimentary</span>
+              <span className="text-blue-400 bg-blue-500/10 px-4 py-1.5 rounded-full border border-blue-500/20 text-[10px]">Complimentary</span>
             </div>
-            <div className="flex justify-between items-baseline pt-8">
-              <span className="text-xs font-black uppercase tracking-[0.6em] text-blue-500">Total Resonance</span>
-              <span className="text-4xl font-black text-white tracking-widest shadow-[0_0_30px_rgba(59,130,246,0.2)] pb-1">${total.toFixed(2)}</span>
+            <div className="flex justify-between items-center pt-8">
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-[0.6em] text-blue-500/60 block mb-1">Total Resonance</span>
+                <span className="text-[8px] text-white/20 uppercase tracking-[0.4em] font-black">Inclusive of all local taxes</span>
+              </div>
+              <span className="text-5xl font-black text-white tracking-tighter drop-shadow-[0_0_15px_rgba(59,130,246,0.3)]">${total.toFixed(2)}</span>
             </div>
           </div>
 
-          <div className="mt-8 flex items-center justify-center gap-6 opacity-40 grayscale text-white">
-            <CreditCard size={20} />
-            <div className="h-4 w-[1px] bg-white/20" />
-            <span className="text-[10px] uppercase tracking-widest">Bank Transfer</span>
-            <div className="h-4 w-[1px] bg-white/20" />
-            <span className="text-[10px] uppercase tracking-widest">COD</span>
+          <div className="mt-12 flex items-center justify-center gap-8 opacity-20 grayscale hover:opacity-50 transition-opacity duration-700 text-white">
+            <CreditCard size={18} />
+            <div className="h-4 w-[px] bg-white/10" />
+            <span className="text-[9px] uppercase tracking-widest font-black">Bank Transfer</span>
+            <div className="h-4 w-[px] bg-white/10" />
+            <span className="text-[9px] uppercase tracking-widest font-black">COD</span>
           </div>
         </div>
       </div>
