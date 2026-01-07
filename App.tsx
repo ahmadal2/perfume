@@ -238,7 +238,14 @@ const App: React.FC = () => {
     setIsLoading(false);
     sessionStorage.setItem('khamrah-distilled', 'true');
     window.scrollTo(0, 0);
-    navigate('/');
+
+    // Check if on mobile to skip Landing page
+    const isMobile = window.innerWidth < 1024;
+    if (isMobile) {
+      navigate('/home');
+    } else {
+      navigate('/');
+    }
   };
 
   return (

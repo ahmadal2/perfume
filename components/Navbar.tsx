@@ -176,7 +176,7 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount, toggleCart, user, onLogout }
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="absolute top-0 right-0 w-full h-full bg-[#020617] border-l border-white/5 flex flex-col p-12"
+              className="absolute top-0 right-0 w-full h-full bg-[#020617] border-l border-white/5 flex flex-col p-12 overflow-y-auto"
             >
               <div className="mt-24 space-y-16">
                 <div className="space-y-2">

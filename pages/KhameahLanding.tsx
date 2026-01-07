@@ -29,17 +29,23 @@ const KhameahLanding: React.FC = () => {
     const lenisRef = useRef<Lenis | null>(null); // Add lenisRef
     const [activeRoom, setActiveRoom] = useState(0);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
-    const [isMobile, setIsMobile] = useState(false);
+    const [isLoading, setIsLoading] = useState(() => {
+        return !sessionStorage.getItem('khamrah-distilled');
+    });
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
 
     useEffect(() => {
         const checkMobile = () => {
-            setIsMobile(window.innerWidth < 1024);
+            const mobile = window.innerWidth < 1024;
+            setIsMobile(mobile);
+            if (mobile) {
+                navigate('/home');
+            }
         };
         checkMobile();
         window.addEventListener('resize', checkMobile);
         return () => window.removeEventListener('resize', checkMobile);
-    }, []);
+    }, [navigate]);
 
     useEffect(() => {
         window.scrollTo(0, 0); // Ensure scroll to top on component mount
@@ -165,11 +171,8 @@ const KhameahLanding: React.FC = () => {
     }
 
     if (isMobile) {
-        // You might want a different view for mobile, or keep LoadingPage if it's immersive
-        return <div className="h-screen w-screen flex items-center justify-center bg-black text-white p-8 text-center">
-            <h2 className="text-2xl font-black uppercase tracking-widest mb-4">Mobile Experience Coming Soon</h2>
-            <p className="opacity-50 text-xs tracking-[0.3em]">Please view on desktop for the full cinematic experience.</p>
-        </div>;
+        // Redirection handled in useEffect for better practice but keeping safety here
+        return null;
     }
 
     return (

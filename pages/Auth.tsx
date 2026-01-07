@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { SignInCard } from '../components/ui/sign-in-card-2';
 import { X } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { OrganicBackground } from '../components/ui/organic-background';
 
 const Auth: React.FC<{ onLogin: (user: any) => void }> = ({ onLogin }) => {
   const navigate = useNavigate();
@@ -17,7 +18,9 @@ const Auth: React.FC<{ onLogin: (user: any) => void }> = ({ onLogin }) => {
   };
 
   return (
-    <div className="relative min-h-screen">
+    <div className="relative min-h-screen bg-[#020617] flex items-center justify-center">
+      <OrganicBackground />
+
       {/* Close Button */}
       <motion.button
         initial={{ opacity: 0, scale: 0.8 }}
@@ -31,7 +34,9 @@ const Auth: React.FC<{ onLogin: (user: any) => void }> = ({ onLogin }) => {
         <X size={20} />
       </motion.button>
 
-      <SignInCard onLoginSuccess={handleAuthSuccess} />
+      <div className="relative z-10 w-full max-w-md p-4">
+        <SignInCard onLoginSuccess={handleAuthSuccess} />
+      </div>
     </div>
   );
 };
