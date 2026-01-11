@@ -173,7 +173,7 @@ export function VerticalImageStack() {
                   }`}
                 style={{
                   boxShadow: isCurrent
-                    ? `0 ${isMobile ? '15px 30px' : '25px 50px'} -12px rgba(59, 130, 246, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.05)`
+                    ? (isMobile ? "0 10px 20px rgba(0,0,0,0.5)" : `0 25px 50px -12px rgba(59, 130, 246, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.05)`)
                     : "0 10px 30px -10px rgba(0, 0, 0, 0.5)",
                 }}
               >
@@ -181,10 +181,11 @@ export function VerticalImageStack() {
                 <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-white/[0.05] via-transparent to-transparent pointer-events-none" />
 
                 <img
-                  src={image.src}
+                  src={`${image.src}${isMobile ? '&w=600&q=50' : ''}`}
                   alt={image.alt}
                   className="object-cover w-full h-full opacity-60 group-hover:opacity-100 transition-opacity duration-1000"
                   draggable={false}
+                  loading="lazy"
                 />
 
                 {/* Bottom gradient overlay */}

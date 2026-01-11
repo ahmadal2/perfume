@@ -91,10 +91,12 @@ export const generateInvoicePDF = (data: InvoiceData): Blob => {
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(80, 80, 80);
     data.items.forEach((item) => {
-        doc.text(`${item.name.toUpperCase()} / ${item.size}`, 25, y);
-        doc.text(`${item.quantity}`, 122, y);
-        doc.text(`$${item.price.toFixed(2)}`, 145, y);
-        doc.text(`$${(item.price * item.quantity).toFixed(2)}`, 175, y);
+        const itemPrice = typeof item.price === 'number' ? item.price : 0;
+        const itemQty = typeof item.quantity === 'number' ? item.quantity : 0;
+        doc.text(`${(item.name || 'ESSENCE').toUpperCase()} / ${item.size || 'N/A'}`, 25, y);
+        doc.text(`${itemQty}`, 122, y);
+        doc.text(`EURO ${itemPrice.toFixed(2)}`, 145, y);
+        doc.text(`EURO ${(itemPrice * itemQty).toFixed(2)}`, 175, y);
 
         // Soft separator
         doc.setDrawColor(240);
@@ -115,7 +117,8 @@ export const generateInvoicePDF = (data: InvoiceData): Blob => {
 
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    doc.text(`$${data.total.toFixed(2)}`, 135, y + 15);
+    const safeTotal = isNaN(data.total) ? 0 : data.total;
+    doc.text(`EURO ${safeTotal.toFixed(2)}`, 135, y + 15);
 
     // --- SAPPHIRE ACCENT ---
     doc.setDrawColor(sapphireLight);

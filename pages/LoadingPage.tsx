@@ -20,13 +20,14 @@ const LoadingPage: React.FC<LoadingPageProps> = ({ onComplete }) => {
   }, [onComplete]);
 
   useEffect(() => {
-    const s1 = setTimeout(() => setStage(1), 400);
-    const s2 = setTimeout(() => setStage(2), 1000);
-    const s3 = setTimeout(() => setStage(3), 2000);
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
+    const s1 = setTimeout(() => setStage(1), isMobile ? 200 : 400);
+    const s2 = setTimeout(() => setStage(2), isMobile ? 500 : 1000);
+    const s3 = setTimeout(() => setStage(3), isMobile ? 1000 : 2000);
     const s4 = setTimeout(() => {
       setStage(4);
       onCompleteRef.current();
-    }, 3000);
+    }, isMobile ? 1500 : 3000);
 
     const progressInterval = setInterval(() => {
       setProgress(prev => {

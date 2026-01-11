@@ -175,6 +175,7 @@ export function TextEffect({
   }, []);
 
   const effectivePer = isMobile ? (per === 'char' ? 'word' : per) : per;
+  const effectivePreset = isMobile && preset === 'blur' ? 'fade' : preset;
 
   // Convert children to string to process it
   const text = React.Children.toArray(children).join('');
@@ -190,8 +191,8 @@ export function TextEffect({
 
   // Use (motion as any) to safely index by the 'as' prop which might be a tag string
   const MotionTag = (motion as any)[as as string] || motion.p;
-  const selectedVariants = preset
-    ? presetVariants[preset]
+  const selectedVariants = effectivePreset
+    ? presetVariants[effectivePreset]
     : { container: defaultContainerVariants, item: defaultItemVariants };
   const containerVariants = variants?.container || selectedVariants.container;
   const itemVariants = variants?.item || selectedVariants.item;

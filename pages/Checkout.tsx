@@ -4,6 +4,7 @@ import { CartItem } from '../types';
 import { WHATSAPP_NUMBER } from '../constants';
 import { ShieldCheck, ArrowLeft, Truck, CreditCard, Loader2, MessageCircle, Plus, Minus, Trash2, Lock, Eye, Zap, ShieldAlert } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { FlowButton } from '../components/ui/flow-button';
 import { generateInvoicePDF } from '../lib/invoiceGenerator';
 import { supabase } from '../lib/supabase';
@@ -25,7 +26,12 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onClearCart, onUpdateQuantit
     notes: ''
   });
 
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const total = items.reduce((sum, item) => {
+    const price = typeof item.price === 'number' ? item.price : 0;
+    const qty = typeof item.quantity === 'number' ? item.quantity : 0;
+    return sum + (price * qty);
+  }, 0);
+  const safeTotal = isNaN(total) ? 0 : total;
 
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -81,13 +87,13 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onClearCart, onUpdateQuantit
         `📧 *Email:* ${formData.email || 'N/A'}\n` +
         `📍 *Address:* ${formData.address || 'Pickup'}\n\n` +
         `📦 *Items:* \n${itemsText}\n\n` +
-        `💰 *Total:* $${total.toFixed(2)}\n\n` +
+        `💰 *Total:* €${total.toFixed(2)}\n\n` +
         `📝 *Notes:* ${formData.notes || 'None'}\n\n` +
         `📄 *Official Invoice:* ${publicUrl}\n\n` +
         `_Please confirm my order and send payment instructions._`
       );
 
-      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, '_blank');
+      window.open(`https://wa.me/${WHATSAPP_NUMBER.replace('+', '')}?text=${message}`, '_blank');
       onClearCart();
       navigate('/');
     } catch (error) {
@@ -110,7 +116,13 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onClearCart, onUpdateQuantit
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12 lg:py-24">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      className="max-w-7xl mx-auto px-4 py-12 lg:py-24 overflow-x-hidden"
+    >
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
         {/* Form */}
         <div className="space-y-16">
@@ -226,7 +238,7 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onClearCart, onUpdateQuantit
         </div>
 
         {/* Summary Redesigned */}
-        <div className="bg-zinc-950/80 backdrop-blur-3xl p-8 lg:p-12 rounded-[3rem] border border-white/10 h-fit sticky top-32 shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden">
+        <div className="bg-zinc-950/90 backdrop-blur-xl p-8 lg:p-12 rounded-[3rem] border border-white/10 h-fit sticky top-32 shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5 opacity-50" />
 
           <h2 className="text-2xl serif mb-10 border-b border-white/5 pb-6 text-white relative flex justify-between items-end">
@@ -272,7 +284,7 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onClearCart, onUpdateQuantit
                         <Plus size={12} />
                       </button>
                     </div>
-                    <span className="text-sm font-black text-white group-hover:text-blue-400 transition-colors tracking-widest">${(item.price * item.quantity).toFixed(2)}</span>
+                    <span className="text-sm font-black text-white group-hover:text-blue-400 transition-colors tracking-widest font-mono">€{(item.price * item.quantity).toFixed(2)}</span>
                   </div>
                 </div>
               </div>
@@ -282,7 +294,7 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onClearCart, onUpdateQuantit
           <div className="space-y-5 pt-10 border-t border-white/5 relative">
             <div className="flex justify-between text-[11px] text-gray-500 uppercase tracking-[0.4em] font-black">
               <span>Archive Subtotal</span>
-              <span className="text-white">${total.toFixed(2)}</span>
+              <span className="text-white font-mono">€{total.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-[11px] text-gray-500 uppercase tracking-[0.4em] font-black">
               <span className="flex items-center gap-3"><Truck size={14} className="text-blue-500" /> Transport</span>
@@ -291,9 +303,9 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onClearCart, onUpdateQuantit
             <div className="flex justify-between items-center pt-8">
               <div>
                 <span className="text-[10px] font-black uppercase tracking-[0.6em] text-blue-500/60 block mb-1">Total Resonance</span>
-                <span className="text-[8px] text-white/20 uppercase tracking-[0.4em] font-black">Inclusive of all local taxes</span>
+                <span className="text-[8px] text-white/20 uppercase tracking-[0.4em] font-black italic">Taxes and logistics distilled at final step</span>
               </div>
-              <span className="text-5xl font-black text-white tracking-tighter drop-shadow-[0_0_15px_rgba(59,130,246,0.3)]">${total.toFixed(2)}</span>
+              <span className="text-5xl font-black text-white tracking-tighter drop-shadow-[0_0_15px_rgba(59,130,246,0.3)] font-mono">€{safeTotal.toFixed(2)}</span>
             </div>
           </div>
 
@@ -306,7 +318,7 @@ const Checkout: React.FC<CheckoutProps> = ({ items, onClearCart, onUpdateQuantit
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

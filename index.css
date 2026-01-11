@@ -390,6 +390,24 @@ input:-webkit-autofill::first-line {
   }
 }
 
+/* Mobile Performance Optimizations */
+@media (max-width: 768px) {
+
+  .glass-panel,
+  .blue-glass,
+  .backdrop-blur-xl,
+  .backdrop-blur-3xl,
+  .backdrop-blur-2xl {
+    backdrop-filter: blur(8px) !important;
+  }
+}
+
+section,
+main>div {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 1000px;
+}
+
 /* Mobile Text Scaling */
 @media (max-width: 640px) {
   .text-glow {

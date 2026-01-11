@@ -67,7 +67,7 @@ const Products: React.FC<ProductsProps> = ({ onAddToCart, user }) => {
       }
     };
     fetchData();
-  }, [user]);
+  }, []);
 
   const filteredProducts = useMemo(() => {
     let result = products.filter(p => {

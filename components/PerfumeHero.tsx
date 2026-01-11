@@ -62,7 +62,11 @@ export const PerfumeHero: React.FC<PerfumeHeroProps> = ({
 
     const backgroundGradient = useTransform(
         [smoothX, smoothY],
-        ([x, y]) => `radial-gradient(circle at ${50 + (x as number) * 30}% ${50 + (y as number) * 30}%, #3b82f633 0%, transparent 60%)`
+        ([x, y]) => {
+            const safeX = isNaN(x as number) ? 0 : x as number;
+            const safeY = isNaN(y as number) ? 0 : y as number;
+            return `radial-gradient(circle at ${50 + safeX * 30}% ${50 + safeY * 30}%, #3b82f633 0%, transparent 60%)`;
+        }
     );
 
     return (
