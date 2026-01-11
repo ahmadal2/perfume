@@ -20,17 +20,17 @@ const LoadingPage: React.FC<LoadingPageProps> = ({ onComplete }) => {
   }, [onComplete]);
 
   useEffect(() => {
-    const s1 = setTimeout(() => setStage(1), 800);
-    const s2 = setTimeout(() => setStage(2), 1800);
-    const s3 = setTimeout(() => setStage(3), 3500);
+    const s1 = setTimeout(() => setStage(1), 400);
+    const s2 = setTimeout(() => setStage(2), 1000);
+    const s3 = setTimeout(() => setStage(3), 2000);
     const s4 = setTimeout(() => {
       setStage(4);
       onCompleteRef.current();
-    }, 5000);
+    }, 3000);
 
     const progressInterval = setInterval(() => {
       setProgress(prev => {
-        const next = prev + 2;
+        const next = prev + 4;
         return next > 100 ? 100 : next;
       });
     }, 100);

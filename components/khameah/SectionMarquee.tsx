@@ -8,21 +8,39 @@ const marqueeLines = [
 ];
 
 const SectionMarquee: React.FC = () => {
+    const [isMobile, setIsMobile] = React.useState(false);
+
+    React.useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 1024);
+        };
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
     return (
         <section className="relative h-screen w-full overflow-hidden flex flex-col justify-center items-center bg-black">
-            {/* Background Video */}
-            <div className="absolute inset-0 z-0">
-                <video
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="w-full h-full object-cover opacity-80"
-                >
-                    <source src="/imag/khm-ved.mp4" type="video/mp4" />
-                </video>
-                <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black" />
-            </div>
+            {/* Background Video - Hidden on mobile */}
+            {!isMobile && (
+                <div className="absolute inset-0 z-0">
+                    <video
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-full object-cover opacity-80"
+                    >
+                        <source src="/imag/khm-ved.mp4" type="video/mp4" />
+                    </video>
+                    <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black" />
+                </div>
+            )}
+            {isMobile && (
+                <div className="absolute inset-0 z-0 bg-black">
+                    <div className="absolute inset-0 bg-gradient-to-b from-blue-900/20 via-black to-black opacity-60" />
+                </div>
+            )}
 
             <div className="relative z-10 w-full space-y-8 md:space-y-12">
                 {marqueeLines.map((line, idx) => (

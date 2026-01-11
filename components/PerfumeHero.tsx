@@ -18,6 +18,16 @@ export const PerfumeHero: React.FC<PerfumeHeroProps> = ({
 }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [isHovered, setIsHovered] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 1024);
+        };
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
@@ -50,35 +60,37 @@ export const PerfumeHero: React.FC<PerfumeHeroProps> = ({
         `M 0 10 Q 25 ${10 + v * 20} 50 10 T 100 10 L 100 20 L 0 20 Z`
     );
 
+    const backgroundGradient = useTransform(
+        [smoothX, smoothY],
+        ([x, y]) => `radial-gradient(circle at ${50 + (x as number) * 30}% ${50 + (y as number) * 30}%, #3b82f633 0%, transparent 60%)`
+    );
+
     return (
         <div
             ref={containerRef}
-            className={`relative w-full h-[600px] md:h-[750px] overflow-hidden bg-[#020617]/40 flex flex-col justify-center items-center rounded-[5rem] border border-white/5 backdrop-blur-2xl shadow-[0_0_100px_rgba(30,58,138,0.2)] group ${className}`}
+            className={`relative w-full h-[600px] md:h-[750px] overflow-hidden bg-[#020617]/40 flex flex-col justify-center items-center rounded-[5rem] border border-white/5 ${!isMobile ? 'backdrop-blur-2xl shadow-[0_0_100px_rgba(30,58,138,0.2)]' : ''} group ${className}`}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            {/* Atmosphere */}
+            {/* Atmosphere - Simplified on mobile */}
             <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-radial from-blue-900/20 to-transparent opacity-60 blur-3xl" />
-                <motion.div
-                    className="absolute inset-0 opacity-40 blur-[150px]"
-                    style={{
-                        background: useTransform(
-                            [smoothX, smoothY],
-                            ([x, y]) => `radial-gradient(circle at ${50 + (x as number) * 30}% ${50 + (y as number) * 30}%, #3b82f633 0%, transparent 60%)`
-                        )
-                    }}
-                />
+                <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-radial from-blue-900/20 to-transparent opacity-60 ${!isMobile ? 'blur-3xl' : ''}`} />
+                {!isMobile && (
+                    <motion.div
+                        className="absolute inset-0 opacity-40 blur-[150px]"
+                        style={{ background: backgroundGradient }}
+                    />
+                )}
             </div>
 
             {/* The Master Centerpiece */}
             <motion.div
                 style={{
-                    x: xTranslate,
-                    y: yTranslate,
-                    rotateX: xRotate,
-                    rotateY: yRotate,
-                    rotateZ: zRotate,
+                    x: isMobile ? 0 : xTranslate,
+                    y: isMobile ? 0 : yTranslate,
+                    rotateX: isMobile ? 0 : xRotate,
+                    rotateY: isMobile ? 0 : yRotate,
+                    rotateZ: isMobile ? 0 : zRotate,
                     perspective: 2000
                 }}
                 className="relative z-20 transform-gpu mb-12"

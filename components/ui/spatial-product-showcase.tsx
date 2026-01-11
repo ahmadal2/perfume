@@ -77,28 +77,32 @@ const ANIMATIONS = {
 // 2. SUB-COMPONENTS
 // =========================================
 
-const ProductVisual = ({ product }: { product: Product }) => {
+const ProductVisual = ({ product, isMobile }: { product: Product, isMobile: boolean }) => {
   const MotionDiv = motion.div as any;
   const MotionImg = motion.img as any;
 
   return (
-    <MotionDiv layout="position" className="relative group shrink-0">
+    <MotionDiv layout={!isMobile ? "position" : false} className="relative group shrink-0">
       {/* Animated Rings - Blue Theme */}
-      <MotionDiv
-        animate={{ rotate: 360 }}
-        transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
-        className="absolute inset-[-15%] rounded-[3rem] border border-dashed border-blue-500/20"
-      />
-      <MotionDiv
-        animate={{ scale: [1, 1.05, 1] }}
-        transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute inset-0 rounded-full bg-blue-600 blur-[100px] opacity-10"
-      />
+      {!isMobile && (
+        <MotionDiv
+          animate={{ rotate: 360 }}
+          transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
+          className="absolute inset-[-15%] rounded-[3rem] border border-dashed border-blue-500/20"
+        />
+      )}
+      {!isMobile && (
+        <MotionDiv
+          animate={{ scale: [1, 1.05, 1] }}
+          transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute inset-0 rounded-full bg-blue-600 blur-[100px] opacity-10"
+        />
+      )}
 
       {/* Image Container */}
-      <div className="relative h-[60vw] w-[60vw] md:h-[480px] md:w-[480px] max-w-[320px] md:max-w-none rounded-[2.5rem] md:rounded-[3rem] border border-white/5 shadow-2xl flex items-center justify-center overflow-hidden bg-white/[0.01] backdrop-blur-xl">
+      <div className={`relative h-[60vw] w-[60vw] md:h-[480px] md:w-[480px] max-w-[320px] md:max-w-none rounded-[2.5rem] md:rounded-[3rem] border border-white/5 shadow-2xl flex items-center justify-center overflow-hidden bg-white/[0.01] ${!isMobile ? 'backdrop-blur-xl' : ''}`}>
         <MotionDiv
-          animate={{ y: [-10, 10, -10] }}
+          animate={!isMobile ? { y: [-10, 10, -10] } : {}}
           transition={{ repeat: Infinity, duration: 8, ease: 'easeInOut' }}
           className="relative z-10 w-full h-full flex items-center justify-center font-bold text-white/10"
         >
@@ -124,10 +128,10 @@ const ProductVisual = ({ product }: { product: Product }) => {
 
       {/* Status Label */}
       <MotionDiv
-        layout="position"
+        layout={!isMobile ? "position" : false}
         className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap"
       >
-        <div className="flex items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-white/50 bg-black/80 px-6 py-3 rounded-full border border-white/10 backdrop-blur-xl">
+        <div className={`flex items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-white/50 bg-black/80 px-6 py-3 rounded-full border border-white/10 ${!isMobile ? 'backdrop-blur-xl' : ''}`}>
           <span className="h-2 w-2 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)] animate-pulse" />
           {product.fragranceType} Selection
         </div>
@@ -144,6 +148,16 @@ export default function PerfumeShowcase({ product, onAddToCart, onBuyNow, active
 
   const [userRating, setUserRating] = React.useState<number | null>(null);
   const [hasRated, setHasRated] = React.useState(false);
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const primaryVariant = product.variants?.[0];
   const originalPrice = primaryVariant?.price || 0;
@@ -202,7 +216,7 @@ export default function PerfumeShowcase({ product, onAddToCart, onBuyNow, active
       <main className="relative z-10 w-full px-6 flex flex-col md:flex-row items-center justify-center gap-16 md:gap-32 lg:gap-40 max-w-7xl mx-auto">
 
         {/* Visuals */}
-        <ProductVisual product={product} />
+        <ProductVisual product={product} isMobile={isMobile} />
 
         {/* Content */}
         <MotionDiv

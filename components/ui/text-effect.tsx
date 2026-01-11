@@ -163,13 +163,26 @@ export function TextEffect({
   onAnimationComplete,
   segmentWrapperClassName,
 }: TextEffectProps) {
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const effectivePer = isMobile ? (per === 'char' ? 'word' : per) : per;
+
   // Convert children to string to process it
   const text = React.Children.toArray(children).join('');
   let segments: string[];
 
-  if (per === 'line') {
+  if (effectivePer === 'line') {
     segments = text.split('\n');
-  } else if (per === 'word') {
+  } else if (effectivePer === 'word') {
     segments = text.split(/(\s+)/);
   } else {
     segments = text.split('');
@@ -182,9 +195,9 @@ export function TextEffect({
     : { container: defaultContainerVariants, item: defaultItemVariants };
   const containerVariants = variants?.container || selectedVariants.container;
   const itemVariants = variants?.item || selectedVariants.item;
-  const ariaLabel = per === 'line' ? undefined : text;
+  const ariaLabel = effectivePer === 'line' ? undefined : text;
 
-  const stagger = defaultStaggerTimes[per];
+  const stagger = defaultStaggerTimes[effectivePer];
 
   const delayedContainerVariants: Variants = {
     hidden: containerVariants.hidden,
@@ -210,15 +223,15 @@ export function TextEffect({
           exit='exit'
           aria-label={ariaLabel}
           variants={delayedContainerVariants}
-          className={cn('whitespace-pre-wrap', className)}
+          className={cn('whitespace-pre-wrap min-h-[1em]', className)}
           onAnimationComplete={onAnimationComplete}
         >
           {segments.map((segment, index) => (
             <AnimationComponent
-              key={`${per}-${index}-${segment}`}
+              key={`${effectivePer}-${index}-${segment}`}
               segment={segment}
               variants={itemVariants}
-              per={per}
+              per={effectivePer}
               segmentWrapperClassName={segmentWrapperClassName}
             />
           ))}

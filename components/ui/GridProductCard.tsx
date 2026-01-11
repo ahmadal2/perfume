@@ -16,6 +16,16 @@ const GridProductCard: React.FC<GridProductCardProps> = ({ product, onAddToCart,
     const navigate = useNavigate();
     const [userRating, setUserRating] = React.useState<number | null>(null);
     const [hasRated, setHasRated] = React.useState(false);
+    const [isMobile, setIsMobile] = React.useState(false);
+
+    React.useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 1024);
+        };
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     const primaryVariant = product.variants[0];
     const originalPrice = primaryVariant?.price || 0;
@@ -59,11 +69,11 @@ const GridProductCard: React.FC<GridProductCardProps> = ({ product, onAddToCart,
 
     return (
         <motion.div
-            layout
-            initial={{ opacity: 0, y: 20 }}
+            layout={!isMobile}
+            initial={isMobile ? { opacity: 1 } : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             onClick={() => navigate(`/product/${product.slug}`)}
-            className="group relative bg-gradient-to-br from-[#1a1a1a] via-[#0f0f0f] to-[#0a0a0a] rounded-xl sm:rounded-[2rem] overflow-hidden border border-white/10 hover:border-blue-500/40 transition-all duration-700 flex flex-col h-full cursor-pointer shadow-2xl hover:shadow-[0_20px_60px_rgba(59,130,246,0.3)] hover:scale-[1.02]"
+            className={`group relative bg-gradient-to-br from-[#1a1a1a] via-[#0f0f0f] to-[#0a0a0a] rounded-xl sm:rounded-[2rem] overflow-hidden border border-white/10 ${!isMobile ? 'hover:border-blue-500/40 transition-all duration-700 hover:shadow-[0_20px_60px_rgba(59,130,246,0.3)] hover:scale-[1.02]' : ''} flex flex-col h-full cursor-pointer shadow-2xl`}
         >
             {/* Sale Badge - Modern 2026 Design */}
             {savingsPercent > 0 && (
@@ -74,38 +84,45 @@ const GridProductCard: React.FC<GridProductCardProps> = ({ product, onAddToCart,
                     className="absolute top-2 sm:top-4 left-2 sm:left-4 z-20"
                 >
                     <div className="relative group">
-                        {/* Animated Glow Effect */}
-                        <motion.div
-                            animate={{
-                                opacity: [0.5, 1, 0.5],
-                                scale: [1, 1.1, 1],
-                            }}
-                            transition={{
-                                duration: 2,
-                                repeat: Infinity,
-                                ease: "easeInOut"
-                            }}
-                            className="absolute inset-0 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 rounded-xl sm:rounded-2xl blur-lg opacity-75"
-                        />
+                        {/* Animated Glow Effect - Simplified or removed on mobile */}
+                        {!isMobile && (
+                            <motion.div
+                                animate={{
+                                    opacity: [0.5, 1, 0.5],
+                                    scale: [1, 1.1, 1],
+                                }}
+                                transition={{
+                                    duration: 2,
+                                    repeat: Infinity,
+                                    ease: "easeInOut"
+                                }}
+                                className="absolute inset-0 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 rounded-xl sm:rounded-2xl blur-lg opacity-75"
+                            />
+                        )}
+                        {isMobile && (
+                            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 rounded-xl opacity-80" />
+                        )}
 
                         {/* Main Badge */}
                         <div className="relative px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 shadow-2xl overflow-hidden">
                             {/* Glassmorphism Overlay */}
                             <div className="absolute inset-0 bg-white/10 backdrop-blur-sm" />
 
-                            {/* Animated Shine Effect */}
-                            <motion.div
-                                animate={{
-                                    x: ['-100%', '200%'],
-                                }}
-                                transition={{
-                                    duration: 3,
-                                    repeat: Infinity,
-                                    ease: "easeInOut",
-                                    repeatDelay: 1
-                                }}
-                                className="absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12"
-                            />
+                            {/* Animated Shine Effect - Removed on mobile */}
+                            {!isMobile && (
+                                <motion.div
+                                    animate={{
+                                        x: ['-100%', '200%'],
+                                    }}
+                                    transition={{
+                                        duration: 3,
+                                        repeat: Infinity,
+                                        ease: "easeInOut",
+                                        repeatDelay: 1
+                                    }}
+                                    className="absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12"
+                                />
+                            )}
 
                             {/* Text Content - Clean Design Without Emoji */}
                             <div className="relative flex items-center justify-center">
@@ -120,12 +137,16 @@ const GridProductCard: React.FC<GridProductCardProps> = ({ product, onAddToCart,
 
             {/* Image Container with Atmospheric Background */}
             <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-slate-200 via-stone-100 to-amber-50 p-4 sm:p-8">
-                {/* Decorative Elements */}
-                <div className="absolute top-0 left-0 w-24 sm:w-32 h-24 sm:h-32 bg-gradient-to-br from-yellow-200/40 to-transparent rounded-full blur-3xl" />
-                <div className="absolute bottom-0 right-0 w-32 sm:w-40 h-32 sm:h-40 bg-gradient-to-tl from-rose-200/30 to-transparent rounded-full blur-3xl" />
+                {/* Decorative Elements - Simplified on Mobile */}
+                {!isMobile && (
+                    <>
+                        <div className="absolute top-0 left-0 w-24 sm:w-32 h-24 sm:h-32 bg-gradient-to-br from-yellow-200/40 to-transparent rounded-full blur-3xl" />
+                        <div className="absolute bottom-0 right-0 w-32 sm:w-40 h-32 sm:h-40 bg-gradient-to-tl from-rose-200/30 to-transparent rounded-full blur-3xl" />
+                    </>
+                )}
 
                 <motion.img
-                    whileHover={{ scale: 1.08, y: -5 }}
+                    whileHover={isMobile ? {} : { scale: 1.08, y: -5 }}
                     transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                     src={product.images[0]}
                     alt={product.name}

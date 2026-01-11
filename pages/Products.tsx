@@ -22,6 +22,16 @@ const Products: React.FC<ProductsProps> = ({ onAddToCart, user }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [viewMode, setViewMode] = useState<'cinematic' | 'grid'>('grid');
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Real Data State
   const [products, setProducts] = useState<Product[]>([]);
@@ -119,11 +129,13 @@ const Products: React.FC<ProductsProps> = ({ onAddToCart, user }) => {
 
   return (
     <div className="min-h-screen bg-[#020617] pt-32 pb-24 text-white">
-      {/* Immersive Background Glows */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-900/10 blur-[150px] rounded-full" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-indigo-900/10 blur-[150px] rounded-full" />
-      </div>
+      {/* Immersive Background Glows - Removed on Mobile for Performance */}
+      {!isMobile && (
+        <div className="fixed inset-0 pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-900/10 blur-[150px] rounded-full" />
+          <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-indigo-900/10 blur-[150px] rounded-full" />
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-8 sm:mb-16">
         <motion.div
