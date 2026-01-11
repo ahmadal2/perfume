@@ -402,11 +402,6 @@ input:-webkit-autofill::first-line {
   }
 }
 
-section,
-main>div {
-  content-visibility: auto;
-  contain-intrinsic-size: 1px 1000px;
-}
 
 /* Mobile Text Scaling */
 @media (max-width: 640px) {
