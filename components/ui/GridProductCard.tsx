@@ -150,7 +150,8 @@ const GridProductCard: React.FC<GridProductCardProps> = ({ product, onAddToCart,
                     transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                     src={product.images[0]}
                     alt={product.name}
-                    className="relative w-full h-full object-contain drop-shadow-2xl z-10"
+                    className="relative w-full h-full object-contain drop-shadow-2xl z-10 select-none pointer-events-none"
+                    style={{ touchAction: 'none' }}
                 />
 
                 {/* Hover Action Overlay */}

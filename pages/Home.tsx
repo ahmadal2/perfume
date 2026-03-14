@@ -7,6 +7,15 @@ import { FloatingPerfume } from '../components/ui/floating-perfume';
 import { PerfumeHero } from '../components/PerfumeHero';
 
 const Home: React.FC = () => {
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const bottles = [
     { id: 1, color: '#3b82f6', liquidColor: '#1e3a8a', size: 100, left: '15%', speed: 1.2 },
     { id: 2, color: '#10b981', liquidColor: '#064e3b', size: 120, left: '40%', speed: 0.8 },
@@ -84,27 +93,29 @@ const Home: React.FC = () => {
         <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
       </section>
 
-      {/* Call to Action for Catalog */}
-      <section className="max-w-7xl mx-auto px-6 py-20 text-center">
-        <div className="glass-panel p-20 md:p-32 rounded-[5rem] border border-white/5 bg-white/[0.01]">
-          <div className="space-y-12 max-w-2xl mx-auto">
-            <TextEffect
-              per="word"
-              preset="blur"
-              as="h2"
-              className="text-6xl md:text-8xl serif italic leading-tight text-white tracking-tighter"
-            >
-              Enter The Vault.
-            </TextEffect>
-            <p className="text-white/40 text-sm leading-loose uppercase tracking-[0.3em] font-light">
-              Our full collection of olfactory signatures awaits your discovery.
-            </p>
-            <Link to="/products">
-              <FlowButton text="View Products" variant="blue" className="h-20 w-full max-w-md mx-auto" />
-            </Link>
+      {/* Call to Action for Catalog - Hidden on Mobile */}
+      {!isMobile && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-20 text-center">
+          <div className="glass-panel p-10 sm:p-20 md:p-32 rounded-[3rem] sm:rounded-[5rem] border border-white/5 bg-white/[0.01]">
+            <div className="space-y-12 max-w-2xl mx-auto">
+              <TextEffect
+                per="word"
+                preset="blur"
+                as="h2"
+                className="text-4xl sm:text-6xl md:text-8xl serif italic leading-tight text-white tracking-tighter"
+              >
+                Enter The Vault.
+              </TextEffect>
+              <p className="text-white/40 text-sm leading-loose uppercase tracking-[0.3em] font-light">
+                Our full collection of olfactory signatures awaits your discovery.
+              </p>
+              <Link to="/products">
+                <FlowButton text="View Products" variant="blue" className="h-20 w-full max-w-md mx-auto" />
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 };

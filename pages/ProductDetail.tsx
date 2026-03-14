@@ -177,7 +177,7 @@ Please confirm availability.`;
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 xl:gap-32 items-start">
 
           {/* LEFT: GALLERY */}
-          <div className="space-y-8 sticky top-32">
+          <div className="space-y-8 lg:sticky lg:top-32">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}

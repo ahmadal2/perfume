@@ -240,12 +240,8 @@ const App: React.FC = () => {
     window.scrollTo(0, 0);
 
     // Check if on mobile to skip Landing page
-    const isMobile = window.innerWidth < 1024;
-    if (isMobile) {
-      navigate('/home');
-    } else {
-      navigate('/');
-    }
+    // For mobile, we stay on / to show the Khameah loading sequence
+    navigate('/');
   };
 
   return (

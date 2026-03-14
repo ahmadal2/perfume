@@ -26,7 +26,11 @@ const Products: React.FC<ProductsProps> = ({ onAddToCart, user }) => {
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024);
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      if (mobile) {
+        setViewMode('grid');
+      }
     };
     checkMobile();
     window.addEventListener('resize', checkMobile);
@@ -200,7 +204,7 @@ const Products: React.FC<ProductsProps> = ({ onAddToCart, user }) => {
 
             <div className="h-6 w-px bg-white/10 mx-1 sm:mx-2 flex-shrink-0" />
 
-            <div className="flex items-center gap-1 flex-shrink-0">
+            <div className={`flex items-center gap-1 flex-shrink-0 ${isMobile ? 'hidden' : ''}`}>
               <button
                 onClick={() => setViewMode('cinematic')}
                 className={`p-2 sm:p-2.5 rounded-xl transition-all ${viewMode === 'cinematic' ? 'bg-white/10 text-white' : 'text-white/20 hover:text-white'}`}

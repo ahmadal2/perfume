@@ -26,7 +26,7 @@ const KhameahLanding: React.FC = () => {
     const navigate = useNavigate();
     const wrapperRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
-    const lenisRef = useRef<Lenis | null>(null); // Add lenisRef
+    const lenisRef = useRef<Lenis | null>(null);
     const [activeRoom, setActiveRoom] = useState(0);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(() => {
@@ -36,16 +36,12 @@ const KhameahLanding: React.FC = () => {
 
     useEffect(() => {
         const checkMobile = () => {
-            const mobile = window.innerWidth < 1024;
-            setIsMobile(mobile);
-            if (mobile) {
-                navigate('/home');
-            }
+            setIsMobile(window.innerWidth < 1024);
         };
         checkMobile();
         window.addEventListener('resize', checkMobile);
         return () => window.removeEventListener('resize', checkMobile);
-    }, [navigate]);
+    }, []);
 
     useEffect(() => {
         window.scrollTo(0, 0); // Ensure scroll to top on component mount
@@ -53,7 +49,7 @@ const KhameahLanding: React.FC = () => {
 
     // Lenis Smooth Scroll Initialization
     useEffect(() => {
-        if (isLoading || isMobile) return;
+        if (isLoading) return; // Removed isMobile check to allow smooth scroll on mobile
 
         const lenis = new Lenis({
             duration: 1.5, // Slightly longer for premium weight
@@ -82,7 +78,7 @@ const KhameahLanding: React.FC = () => {
             gsap.ticker.remove(updateLenis);
             lenis.destroy();
         };
-    }, [isLoading, isMobile]);
+    }, [isLoading]); // Removed isMobile from dependencies
 
     const activeRoomRef = useRef(0);
 
@@ -90,7 +86,7 @@ const KhameahLanding: React.FC = () => {
     useEffect(() => {
         const container = containerRef.current;
         const wrapper = wrapperRef.current;
-        if (!container || !wrapper || isLoading || isMobile) return;
+        if (!container || !wrapper || isLoading || isMobile) return; // Keep horizontal scroll restricted to desktop
 
         const sections = gsap.utils.toArray<HTMLElement>('.room-section');
         const totalSections = sections.length;
@@ -98,14 +94,14 @@ const KhameahLanding: React.FC = () => {
         // Reset scroll position on refresh
         window.scrollTo(0, 0);
 
-        // Horizontal Scroll Animation - Target the container for stability
+        // Horizontal Scroll Animation - Only for Desktop
         const scrollTween = gsap.to(container, {
             x: () => -(container.scrollWidth - window.innerWidth),
             ease: "none",
             scrollTrigger: {
                 trigger: wrapper,
                 pin: true,
-                scrub: 1.2, // Balanced for premium feel and responsiveness
+                scrub: 1.2,
                 invalidateOnRefresh: true,
                 anticipatePin: 1,
                 end: () => `+=${container.scrollWidth}`,
@@ -140,7 +136,28 @@ const KhameahLanding: React.FC = () => {
             if (scrollTween) scrollTween.kill();
             ScrollTrigger.getAll().forEach(t => t.kill());
         };
-    }, [isLoading, isMobile]); // Removed activeRoom from dependencies to stop the loop
+    }, [isLoading, isMobile]);
+
+    // Added Scroll Tracking for Mobile
+    useEffect(() => {
+        if (!isMobile || isLoading) return;
+
+        const handleMobileScroll = () => {
+            const scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+            const sections = gsap.utils.toArray<HTMLElement>('.room-section');
+            const totalSections = sections.length;
+            const newActiveRoom = Math.round(scrollPercent * (totalSections - 1));
+
+            setScrollProgress(scrollPercent);
+            if (newActiveRoom !== activeRoomRef.current) {
+                activeRoomRef.current = newActiveRoom;
+                setActiveRoom(newActiveRoom);
+            }
+        };
+
+        window.addEventListener('scroll', handleMobileScroll);
+        return () => window.removeEventListener('scroll', handleMobileScroll);
+    }, [isMobile, isLoading]);
 
     const menuItems = [
         { label: 'Hero', icon: Home, index: 0 },
@@ -154,6 +171,13 @@ const KhameahLanding: React.FC = () => {
     ];
 
     const scrollToRoom = (index: number) => {
+        if (isMobile) {
+            const targetSection = document.querySelectorAll('.room-section')[index];
+            if (targetSection) {
+                targetSection.scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+        }
         if (!lenisRef.current) return;
         const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
         const targetScroll = (index / (menuItems.length - 1)) * totalHeight;
@@ -166,13 +190,12 @@ const KhameahLanding: React.FC = () => {
 
     const [scrollProgress, setScrollProgress] = useState(0);
 
-    if (isLoading) {
-        return <LoadingPage onComplete={() => setIsLoading(false)} />;
+    if (isMobile) {
+        return <LoadingPage onComplete={() => navigate('/home')} />;
     }
 
-    if (isMobile) {
-        // Redirection handled in useEffect for better practice but keeping safety here
-        return null;
+    if (isLoading) {
+        return <LoadingPage onComplete={() => setIsLoading(false)} />;
     }
 
     return (
@@ -309,11 +332,11 @@ const KhameahLanding: React.FC = () => {
             </div>
 
             {/* Main Horizontal Scroll Surface */}
-            <div ref={wrapperRef} className="relative overflow-hidden">
+            <div ref={wrapperRef} className={`relative ${isMobile ? 'overflow-visible' : 'overflow-hidden'}`}>
                 <div
                     ref={containerRef}
-                    className="flex flex-nowrap w-fit will-change-transform"
-                    style={{ height: '100vh' }}
+                    className={`flex ${isMobile ? 'flex-col' : 'flex-nowrap w-fit'} will-change-transform`}
+                    style={{ height: isMobile ? 'auto' : '100vh' }}
                 >
                     <div className="room-section w-screen h-screen flex-shrink-0"><Room1Hero /></div>
                     <div className="room-section w-screen h-screen flex-shrink-0"><Room2Manifesto /></div>
